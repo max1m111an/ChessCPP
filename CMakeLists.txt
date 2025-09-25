@@ -32,7 +32,7 @@ else()
 endif()
 
 add_executable(ChessCPP src/main.cpp
-        src/figures.cpp)
+        src/figures.h)
 
 # set the include directory
 target_include_directories(ChessCPP PRIVATE ${raylib_INCLUDE_DIRS})
