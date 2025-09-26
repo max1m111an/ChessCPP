@@ -1,10 +1,13 @@
 #include "figures.h"
 
-void Figure::moveFigure(const float x, const float y) {
+void Figure::moveFigure(const float x, const float y){
     this->x = x;
     this->y = y;
+}
+
+void Figure::draw(const float x, const float y) const {
     const float dx = static_cast<float>(this->texture.width) / 2.0f,
-    dy = static_cast<float>(this->texture.height) / 2.0f;
+        dy = static_cast<float>(this->texture.height) / 2.0f;
     DrawTextureV(this->texture, {x - dx, y - dy}, WHITE);
 }
 

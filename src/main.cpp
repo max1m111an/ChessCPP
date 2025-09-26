@@ -16,6 +16,10 @@ typedef std::unordered_map<std::string, Texture2D> textureMap;
 #define filenameIcon "../textures/chesscpp_icon.png"
 
 
+bool isValidMove(const float x, const float y) {
+    return x >= 0.0f && x <= CELL_SIZE * CELLS_QUANT && y >= 0.0f && y <= CELL_SIZE * CELLS_QUANT;
+}
+
 std::string pos[CELLS_QUANT][CELLS_QUANT] {
     {"bR", "bN", "bB", "bK", "bQ", "bb", "bn", "br"},
     {"bP0", "bP1", "bP2", "bP3", "bP4", "bP5", "bP6", "bP7"},
@@ -111,11 +115,50 @@ inline std::pair<int, int> getMousePosXY(const Vector2 &mousePos) {
     return {static_cast<int>(mousePos.x) / CELL_SIZE, static_cast<int>(mousePos.y) / CELL_SIZE};
 }
 
-void moveFigures(const Vector2 &mousePos, Board &board) {
-    std::pair<int, int> xy = getMousePosXY(mousePos);
+static std::pair<int, int> draggedFigurePos {};
+static bool isDragging = false;
+
+void startMoveFigures(Board& board, const Vector2& mousePos) {
+    const std::pair<int, int> xy = getMousePosXY(mousePos);
+
     if (board.board[xy.first][xy.second].occupied()) {
-        Figure thisFigure = board.board[xy.first][xy.second].figure.value();
-        thisFigure.moveFigure(mousePos.x, mousePos.y);
+        board.board[xy.first][xy.second].figure->active = true;
+        draggedFigurePos = xy;
+        isDragging = true;
+    }
+}
+
+void updateMoveFigures(Board& board, const Vector2& mousePos) {
+    if (isDragging) {
+        Figure& figure = board.board[draggedFigurePos.first][draggedFigurePos.second].figure.value();
+
+        figure.draw(mousePos.x, mousePos.y);
+    }
+}
+
+void endMoveFigures(Board& board) {
+    if (isDragging) {
+        Figure& figure = board.board[draggedFigurePos.first][draggedFigurePos.second].figure.value();
+        figure.active = false;
+
+        figure.x = draggedFigurePos.first * CELL_SIZE + CELL_SIZE / 2.0f;
+        figure.y = draggedFigurePos.second * CELL_SIZE + CELL_SIZE / 2.0f;
+
+        isDragging = false;
+    }
+}
+
+void wholeMoveFigures(const Vector2& mousePos, Board& board) {
+    if (!isDragging) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            startMoveFigures(board, mousePos);
+        }
+    } else {
+        updateMoveFigures(board, mousePos);
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            endMoveFigures(board);
+        }
     }
 }
 
@@ -129,7 +172,8 @@ int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ChessCPP");
     SetWindowIcon(LoadImage(filenameIcon));
 
-    textureMap guy = LoadData();
+    const textureMap guy = LoadData();
+    Board mainBoard;
 
     SetTargetFPS(FPS);
 
@@ -139,7 +183,6 @@ int main() {
         mousePosition = GetMousePosition();
 
         BeginDrawing();
-        Board mainBoard;
 
         for (int i = 0; i < CELLS_QUANT; i++) {
             for (int j = 0; j < CELLS_QUANT; j++) {
@@ -157,10 +200,9 @@ int main() {
 
         drawFigures(guy, mainBoard);
 
-        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-            moveFigures(mousePosition, mainBoard);
+        if (isValidMove(mousePosition.x, mousePosition.y)) {
+            wholeMoveFigures(mousePosition, mainBoard);
         }
-
 
         ClearBackground(RAYWHITE);
         EndDrawing();

@@ -30,6 +30,7 @@ class Figure {
         bool alive = true;
         bool active = false;
         void moveFigure(float, float);
+        void draw(float, float) const;
 };
 
 
