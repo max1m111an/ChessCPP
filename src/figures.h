@@ -7,12 +7,9 @@
 #include <vector>
 
 #include "raylib.h"
-//
-// Created by maksi on 24.09.2025.
-//
 
-inline constexpr int cellSize = 80;
-inline constexpr int cellsQuantity = 8;
+inline constexpr int CELL_SIZE = 80;
+inline constexpr int CELLS_QUANT = 8;
 
 enum FigureType {
     PAWN,
@@ -32,13 +29,14 @@ class Figure {
         float y = 0.f;
         bool alive = true;
         bool active = false;
+        void moveFigure(float, float);
 };
 
 
 class Cell {
     public:
         bool isBlack;
-        bool occupied = false;
+        bool occupied() const;
         std::optional<Figure> figure = std::nullopt;
 };
 
