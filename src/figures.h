@@ -30,7 +30,9 @@ class Figure {
         bool alive = true;
         bool active = false;
         void moveFigure(float, float);
-        void draw(float, float) const;
+        void drawAtCursor(float, float) const;
+        void drawAtBoard(float, float) const;
+
 };
 
 
@@ -44,4 +46,6 @@ class Cell {
 class Board {
     public:
         std::array<std::array<Cell, 8>, 8> board;
+        void initBoard();
+        void drawBoard() const;
 };

@@ -98,15 +98,15 @@ std::pair<int, int> getPosXY(const std::string &figureType) {
 
 void drawFigures(const textureMap &t, Board &board) {
     for (const auto& figure: t) {
-        double scaleFigureToCell = static_cast<double>(CELL_SIZE) / figure.second.width;
-        bool isFigureWhite = figure.first[0] == 'w';
-        std::pair<int, int> xy = getPosXY(figure.first);
+        const double scaleFigureToCell = static_cast<double>(CELL_SIZE) / figure.second.width;
+        const bool isFigureWhite = figure.first[0] == 'w';
+        const std::pair<int, int> xy = getPosXY(figure.first);
 
         Figure newFigure(strToFigureType[figure.first], figure.second, isFigureWhite,
                          static_cast<float>(xy.first) * CELL_SIZE, static_cast<float>(xy.second) * CELL_SIZE);
         board.board[xy.first][xy.second].figure = newFigure;
 
-        DrawTextureEx(newFigure.texture, (Vector2){newFigure.x, newFigure.y},
+        DrawTextureEx(newFigure.texture, {newFigure.x, newFigure.y},
                   0, static_cast<float>(scaleFigureToCell), WHITE);
     }
 }
@@ -116,9 +116,9 @@ inline std::pair<int, int> getMousePosXY(const Vector2 &mousePos) {
 }
 
 static std::pair<int, int> draggedFigurePos {};
-static bool isDragging = false;
+static bool isDragging { false };
 
-void startMoveFigures(Board& board, const Vector2& mousePos) {
+void startDragFigures(Board& board, const Vector2& mousePos) {
     const std::pair<int, int> xy = getMousePosXY(mousePos);
 
     if (board.board[xy.first][xy.second].occupied()) {
@@ -128,52 +128,55 @@ void startMoveFigures(Board& board, const Vector2& mousePos) {
     }
 }
 
-void updateMoveFigures(Board& board, const Vector2& mousePos) {
+void updateDrawFigures(Board& board, const Vector2& mousePos) {
     if (isDragging) {
         Figure& figure = board.board[draggedFigurePos.first][draggedFigurePos.second].figure.value();
 
-        figure.draw(mousePos.x, mousePos.y);
+        figure.drawAtCursor(mousePos.x, mousePos.y);
     }
 }
 
-void endMoveFigures(Board& board) {
+void endDragFigures(Board& board) {
     if (isDragging) {
         Figure& figure = board.board[draggedFigurePos.first][draggedFigurePos.second].figure.value();
         figure.active = false;
 
-        figure.x = draggedFigurePos.first * CELL_SIZE + CELL_SIZE / 2.0f;
-        figure.y = draggedFigurePos.second * CELL_SIZE + CELL_SIZE / 2.0f;
+        figure.x = static_cast<float>(draggedFigurePos.first) * CELL_SIZE + CELL_SIZE / 2.0f;
+        figure.y = static_cast<float>(draggedFigurePos.second) * CELL_SIZE + CELL_SIZE / 2.0f;
+
+        figure.drawAtBoard(figure.x, figure.y);
 
         isDragging = false;
     }
 }
 
-void wholeMoveFigures(const Vector2& mousePos, Board& board) {
+void DragFigures(const Vector2& mousePos, Board& board) {
     if (!isDragging) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            startMoveFigures(board, mousePos);
+            startDragFigures(board, mousePos);
         }
     } else {
-        updateMoveFigures(board, mousePos);
+        updateDrawFigures(board, mousePos);
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            endMoveFigures(board);
+            endDragFigures(board);
         }
     }
 }
 
 int main() {
-    constexpr int SCREEN_WIDTH {CELL_SIZE * CELLS_QUANT};
-    constexpr int SCREEN_HEIGHT {SCREEN_WIDTH + 150};
-    constexpr int FPS {60};
+    constexpr int SCREEN_WIDTH { CELL_SIZE * CELLS_QUANT };
+    constexpr int SCREEN_HEIGHT { SCREEN_WIDTH + 150 };
+    constexpr int FPS { 60 };
 
-    Vector2 mousePosition {0};
+    Vector2 mousePosition { 0 };
 
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ChessCPP");
     SetWindowIcon(LoadImage(filenameIcon));
 
-    const textureMap guy = LoadData();
+    const textureMap guy { LoadData() };
     Board mainBoard;
+    mainBoard.initBoard();
 
     SetTargetFPS(FPS);
 
@@ -183,25 +186,11 @@ int main() {
         mousePosition = GetMousePosition();
 
         BeginDrawing();
-
-        for (int i = 0; i < CELLS_QUANT; i++) {
-            for (int j = 0; j < CELLS_QUANT; j++) {
-                // mainBoard.board[i][j] = mainBoard.board[i][j];
-                Cell newCell((i + j) % 2 == 0);
-                mainBoard.board[i][j] = newCell;
-                DrawRectangle(
-                    i * CELL_SIZE,
-                    j * CELL_SIZE,
-                    CELL_SIZE,
-                    CELL_SIZE,
-                    newCell.isBlack ? WHITE : BLACK);
-            }
-        }
-
+        mainBoard.drawBoard();
         drawFigures(guy, mainBoard);
 
         if (isValidMove(mousePosition.x, mousePosition.y)) {
-            wholeMoveFigures(mousePosition, mainBoard);
+            DragFigures(mousePosition, mainBoard);
         }
 
         ClearBackground(RAYWHITE);
