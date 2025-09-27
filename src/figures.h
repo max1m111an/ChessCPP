@@ -1,15 +1,21 @@
-#pragma once
-#include <array>
-#include <iostream>
-#include <optional>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#ifndef FIGURES_H
+#define FIGURES_H
 
+#define filenameWP "../textures/wP.png"
+#define filenameWQ "../textures/wQ.png"
+#define filenameWK "../textures/wK.png"
+#define filenameWR "../textures/wR.png"
+#define filenameWN "../textures/wN.png"
+#define filenameWB "../textures/wB.png"
+#define filenameBP "../textures/bP.png"
+#define filenameBQ "../textures/bQ.png"
+#define filenameBK "../textures/bK.png"
+#define filenameBR "../textures/bR.png"
+#define filenameBN "../textures/bN.png"
+#define filenameBB "../textures/bB.png"
+
+#include "cell.h"
 #include "raylib.h"
-
-inline constexpr int CELL_SIZE = 80;
-inline constexpr int CELLS_QUANT = 8;
 
 enum FigureType {
     PAWN,
@@ -18,34 +24,67 @@ enum FigureType {
     ROOK,
     KING,
     QUEEN,
+    NONE,
 };
 
 class Figure {
+public:
+    virtual ~Figure() = default;
+
+    Texture2D texture;
+    Cell cell;
+    bool alive;
+    bool isWhite = false;
+    float x = 0.0f;
+    float y = 0.0f;
+
+    void moveFigure(float, float);
+    void dragAtCursor(float, float) const;
+
+    virtual FigureType getType();
+
+    Figure() = default;
+
+    Figure(const Texture2D &texture, const float x, const float y, const Cell newCell):
+    texture(texture), cell(newCell), alive(true), x(x), y(y){}
+};
+
+class Pawn : public Figure {
     public:
-        FigureType type;
-        Texture2D texture;
-        bool isWhite = false;
-        float x = 0.f;
-        float y = 0.f;
-        bool alive = true;
-        bool active = false;
-        void moveFigure(float, float);
-        void drawAtCursor(float, float) const;
-        void drawAtBoard(float, float) const;
+    Pawn();
+    FigureType getType() override;
+};
+
+class Knight : public Figure {
+    public:
+    Knight();
+    FigureType getType() override;
 
 };
 
-
-class Cell {
+class Bishop : public Figure {
     public:
-        bool isBlack;
-        bool occupied() const;
-        std::optional<Figure> figure = std::nullopt;
+    Bishop();
+    FigureType getType() override;
+
 };
 
-class Board {
+class Rook : public Figure {
     public:
-        std::array<std::array<Cell, 8>, 8> board;
-        void initBoard();
-        void drawBoard() const;
+    Rook();
+    FigureType getType() override;
 };
+
+class King : public Figure {
+    public:
+    King();
+    FigureType getType() override;
+};
+
+class Queen : public Figure {
+    public:
+    Queen();
+    FigureType getType() override;
+};
+
+#endif //FIGURES_H
