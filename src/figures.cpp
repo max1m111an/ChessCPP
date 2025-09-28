@@ -15,7 +15,6 @@ FigureType Figure::getType() {
     return NONE;
 }
 
-
 FigureType Pawn::getType() {
     return PAWN;
 }

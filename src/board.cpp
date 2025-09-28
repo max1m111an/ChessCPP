@@ -1,17 +1,45 @@
 #include "board.h"
 
-void Board::drawFigure(Figure &figure, const float x, const float y) {
+
+void Board::drawFigure(Figure &figure, const float x, const float y) const {
     const float scaleFigureToCell = static_cast<float>(CELL_SIZE) / figure.texture.width;
     DrawTextureEx(figure.texture, {x, y}, 0, scaleFigureToCell, WHITE);
 }
 
+void Board::moveFigureOnBoard(Figure &figure, const float newX, const float newY) {
+    const auto tempFigure = std::make_unique<Figure>(figure);
+
+    for (int i = 0; i < this->board.size(); ++i) {
+        for (int j = 0; j < this->board[i].size(); ++j) {
+            if (this->board[i][j] == tempFigure) {
+                this->board[i][j].reset(); // Erase
+                break;
+            }
+        }
+    }
+    this->board[static_cast<int>(newX)][static_cast<int>(newY)] = std::make_unique<Figure>(figure);
+}
+
+
 
 void Board::initBoard() {
-    for (int i = 0; i < CELLS_QUANT; ++i) {
-        for (int j = 0; j < CELLS_QUANT; ++j) {
-            // Init Pawns
-            if (i == 1 || i == 6) {
-                // this->board[i][j] = std::make_unique<Figure>(Pawn());
+    for (int i = 0; i < this->board.size(); ++i) {
+        for (int j = 0; j < this->board[i].size(); ++j) {
+            // Init white Pawns
+            if (i == 6) {
+                this->board[i][j] = std::make_unique<Figure>(Pawn(LoadTexture(filenameWP),
+                    static_cast<float>(i * CELL_SIZE),
+                    static_cast<float>(j * CELL_SIZE),
+                    Cell(i, j, (i + j) % 2 == 0),
+                    true));
+            }
+            // Init black Pawns
+            if (i == 1) {
+                this->board[i][j] = std::make_unique<Figure>(Pawn(LoadTexture(filenameBP),
+                    static_cast<float>(i * CELL_SIZE),
+                    static_cast<float>(j * CELL_SIZE),
+                    Cell(i, j, (i + j) % 2 == 0),
+                    false));
             }
         }
     }
@@ -30,7 +58,7 @@ void Board::drawBoard() {
             static_cast<float>(x * NUMBERS_CELL_HEIGHT + NUMBERS_CELL_HEIGHT / 2 + 8)
         };
 
-        DrawTextCodepoint(GetFontDefault(), '1' + x, textPos, 16, BLACK);
+        DrawTextCodepoint(GetFontDefault(), '8' - x, textPos, 16, BLACK);
         ++x;
 
         if (x == 8 && first) {

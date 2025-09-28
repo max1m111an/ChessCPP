@@ -5,10 +5,18 @@ typedef std::unordered_map<std::string, Texture2D> textureMap;
 
 
 bool isValidMove(const float x, const float y) {
-    return x >= 0.0f && x <= SCREEN_WIDTH && y >= 0.0f && y <= SCREEN_HEIGHT;
+    std::cout << NUMBERS_CELL_WIDTH << " =< " << x << " =< " << SCREEN_WIDTH - NUMBERS_CELL_WIDTH << std::endl;
+    std::cout << LETTERS_CELL_HEIGHT << " =< " << y << " =< " << SCREEN_HEIGHT - LETTERS_CELL_HEIGHT << std::endl;
+    std::cout << (x >= NUMBERS_CELL_WIDTH) << " " <<
+        (x <= (SCREEN_WIDTH - NUMBERS_CELL_WIDTH)) << " " <<
+            (y >= LETTERS_CELL_HEIGHT) << " " <<
+                (y <= (SCREEN_HEIGHT - LETTERS_CELL_HEIGHT)) << std::endl;
+
+    return (x >= NUMBERS_CELL_WIDTH) && (x <= (SCREEN_WIDTH - NUMBERS_CELL_WIDTH)) &&
+        (y >= LETTERS_CELL_HEIGHT) && (y <= (SCREEN_HEIGHT - LETTERS_CELL_HEIGHT));
 }
 
-std::string pos[CELLS_QUANT][CELLS_QUANT] {
+std::string startPos[CELLS_QUANT][CELLS_QUANT] {
     {"bR", "bN", "bB", "bK", "bQ", "bb", "bn", "br"},
     {"bP0", "bP1", "bP2", "bP3", "bP4", "bP5", "bP6", "bP7"},
     {"", "", "", "", "", "", "", ""},
@@ -96,7 +104,7 @@ textureMap LoadData() {
 std::pair<int, int> getPosXY(const std::string &figureType) {
     for (int i = 0; i < CELLS_QUANT; i++) {
         for (int j = 0; j < CELLS_QUANT; ++j) {
-            if (figureType == pos[i][j]) return {j, i};
+            if (figureType == startPos[i][j]) return {j, i};
         }
     }
     return {0, 0};
@@ -107,8 +115,11 @@ void drawFigures(const textureMap &t, Board &board) {
         const double scaleFigureToCell = static_cast<double>(CELL_SIZE) / figure.second.width;
         const std::pair<int, int> xy = getPosXY(figure.first);
 
-        Figure newFigure(figure.second, static_cast<float>(xy.first) * CELL_SIZE, static_cast<float>(xy.second) * CELL_SIZE, Cell(xy.first, xy.second));
-        newFigure.isWhite = figure.first[0] == 'w';
+        Figure newFigure(figure.second,
+            static_cast<float>(xy.first) * CELL_SIZE,
+            static_cast<float>(xy.second) * CELL_SIZE,
+            Cell(xy.first, xy.second),
+            figure.first[0] == 'w');
         board.board[xy.first][xy.second] = std::make_unique<Figure>(newFigure);
 
         DrawTextureEx(newFigure.texture, {newFigure.x + NUMBERS_CELL_WIDTH, newFigure.y + NUMBERS_CELL_WIDTH},
@@ -116,19 +127,18 @@ void drawFigures(const textureMap &t, Board &board) {
     }
 }
 
-inline std::pair<int, int> getMousePosXY(const Vector2 &mousePos) {
+inline std::pair<int, int> getMousePosOnBoardXY(const Vector2 &mousePos) {
     return {static_cast<int>(mousePos.x) / CELL_SIZE, static_cast<int>(mousePos.y) / CELL_SIZE};
 }
 
 static std::pair<int, int> draggedFigurePos {};
 static bool isDragging { false };
 
-void startDragFigures(Board& board, const Vector2& mousePos) {
-    const std::pair<int, int> xy = getMousePosXY(mousePos);
+void startDragFigures(const Board& board, const Vector2& mousePos) {
+    const std::pair<int, int> xy = getMousePosOnBoardXY(mousePos);
 
     if (board.board[xy.first][xy.second]) {
         draggedFigurePos = xy;
-
         isDragging = true;
     }
 }
@@ -145,10 +155,8 @@ void endDragFigures(Board& board) {
     if (isDragging) {
         Figure figure = *board.board[draggedFigurePos.first][draggedFigurePos.second];
 
-        figure.x = static_cast<float>(draggedFigurePos.first) * CELL_SIZE + CELL_SIZE / 2.0f;
-        figure.y = static_cast<float>(draggedFigurePos.second) * CELL_SIZE + CELL_SIZE / 2.0f;
-
-
+        figure.moveFigure(static_cast<float>(draggedFigurePos.first) * CELL_SIZE + CELL_SIZE / 2.0f,
+            static_cast<float>(draggedFigurePos.second) * CELL_SIZE + CELL_SIZE / 2.0f);
         board.drawFigure(figure, figure.x, figure.y);
 
         isDragging = false;
@@ -158,7 +166,9 @@ void endDragFigures(Board& board) {
 void DragFigures(const Vector2& mousePos, Board& board) {
     if (!isDragging) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            startDragFigures(board, mousePos);
+            if (isValidMove(mousePos.x, mousePos.y)) {
+                startDragFigures(board, mousePos);
+            }
         }
     } else {
         updateDrawFigures(board, mousePos);
@@ -172,7 +182,7 @@ void DragFigures(const Vector2& mousePos, Board& board) {
 int main() {
     Vector2 mousePosition { 0 };
 
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ChessCPP");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT + ADD_SCREEN_HEIGHT, "ChessCPP");
     SetWindowIcon(LoadImage(filenameIcon));
 
     const textureMap vimguy { LoadData() };
@@ -187,12 +197,10 @@ int main() {
         mousePosition = GetMousePosition();
 
         BeginDrawing();
-        mainBoard.drawBoard();
+        Board::drawBoard();
         drawFigures(vimguy, mainBoard);
 
-        if (isValidMove(mousePosition.x, mousePosition.y)) {
-            DragFigures(mousePosition, mainBoard);
-        }
+        DragFigures(mousePosition, mainBoard);
 
         ClearBackground(RAYWHITE);
         EndDrawing();

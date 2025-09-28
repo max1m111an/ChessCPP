@@ -1,7 +1,3 @@
-//
-// Created by maksi on 27.09.2025.
-//
-
 #ifndef CELL_H
 #define CELL_H
 
