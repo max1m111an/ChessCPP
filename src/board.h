@@ -27,8 +27,8 @@ class Board {
         std::array<std::array<std::unique_ptr<Figure>, CELLS_QUANT>, CELLS_QUANT> board;
 
         void initBoard();
-
-        static void drawBoard();
-        void drawFigure(Figure&, float, float) const;
-        void moveFigureOnBoard(Figure&, float, float);
+        void drawBoard();
+        std::string getBoardStatus() const;
+        void drawFigure(const Figure&) const;
+        void moveFigureOnBoard(const Figure&, int, int);
 };

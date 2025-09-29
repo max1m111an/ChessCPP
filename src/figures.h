@@ -30,6 +30,7 @@ enum FigureType {
 class Figure {
 public:
     virtual ~Figure() = default;
+    Figure() = default;
 
     Texture2D texture;
     Cell cell;
@@ -40,10 +41,7 @@ public:
 
     void moveFigure(float, float);
     void dragAtCursor(float, float) const;
-
     virtual FigureType getType();
-
-    Figure() = default;
 
     Figure(const Texture2D &texture, const float x, const float y, const Cell newCell, const bool isWhite):
     texture(texture), cell(newCell), alive(true), isWhite(isWhite), x(x), y(y){}

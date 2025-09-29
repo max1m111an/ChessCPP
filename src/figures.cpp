@@ -1,8 +1,12 @@
 #include "figures.h"
 
+#include "board.h"
+
 void Figure::moveFigure(const float x, const float y) {
     this->x = x;
     this->y = y;
+    this->cell.col = static_cast<int>(x - NUMBERS_CELL_WIDTH) / CELL_SIZE;
+    this->cell.row = static_cast<int>(y - LETTERS_CELL_HEIGHT) / CELL_SIZE;
 }
 
 void Figure::dragAtCursor(const float x, const float y) const {
