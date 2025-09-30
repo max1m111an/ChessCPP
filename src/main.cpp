@@ -9,10 +9,6 @@ bool isValidMove(const float x, const float y) {
         y >= LETTERS_CELL_HEIGHT && y <= SCREEN_HEIGHT - LETTERS_CELL_HEIGHT;
 }
 
-std::pair<int, int> getPosXYFloatToInt(const float x, const float y) {
-    return {(x - NUMBERS_CELL_WIDTH) / CELL_SIZE, (y - LETTERS_CELL_HEIGHT) / CELL_SIZE};
-}
-
 Vector2 getPosXYIntToFloat(const int x, const int y) {
     return {static_cast<float>(x * CELL_SIZE + NUMBERS_CELL_WIDTH), static_cast<float>(y * CELL_SIZE + LETTERS_CELL_HEIGHT)};
 }
@@ -66,7 +62,7 @@ void endDragFigures(Board& board) {
         const float newFigX = static_cast<float>(newCol) * CELL_SIZE + NUMBERS_CELL_WIDTH;
         const float newFigY = static_cast<float>(newRow) * CELL_SIZE + LETTERS_CELL_HEIGHT;
 
-        if (isValidMove(newFigX, newFigY)) {
+        if (isValidMove(newFigX, newFigY) && draggedFigureCurrentPos != draggedFigureStartPos) {
             Figure* figurePtr = board.board[draggedFigureStartPos.second][draggedFigureStartPos.first].get();
 
             if (figurePtr) {
@@ -80,18 +76,23 @@ void endDragFigures(Board& board) {
     }
 }
 
+// Returns figure to its place
+void turnBackFigure() {
+    isDragging = false;
+}
+
 void DragFigures(const Vector2& mousePos, Board& board) {
     if (!isDragging) {
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            if (isValidMove(mousePos.x, mousePos.y)) {
-                startDragFigures(board, mousePos);
-            }
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && isValidMove(mousePos.x, mousePos.y)) {
+            startDragFigures(board, mousePos);
         }
     } else {
         updateDragFigures(board, mousePos);
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             endDragFigures(board);
+        } if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+            turnBackFigure();
         }
     }
 }

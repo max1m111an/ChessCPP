@@ -9,6 +9,12 @@ std::unordered_map<FigureType, const char> typeToStr = {
 {BISHOP, 'b'}
 };
 
+/* Board record in format:
+ * _lowercase_ - black;
+ * uppercase - white;
+ * number - count empty cells in row;
+ * '/' - shift to new row.
+**/
 std::string Board::getBoardStatus() const {
     std::string status;
     int emptyCells = 0;
@@ -45,14 +51,21 @@ void Board::drawFigure(const Figure &figure) const {
     DrawTextureEx(figure.texture, {figure.x, figure.y}, 0, scaleFigureToCell, WHITE);
 }
 
+std::pair<int, int> getPosXYFloatToInt(const float x, const float y) {
+    return {(x - NUMBERS_CELL_WIDTH) / CELL_SIZE, (y - LETTERS_CELL_HEIGHT) / CELL_SIZE};
+}
+
+// Move figure to new X and Y
 void Board::moveFigureOnBoard(const Figure &figure, const int newX, const int newY) {
-    if (!this->board[newY][newX].get()) {
-        const int oldY = static_cast<int>(figure.y - LETTERS_CELL_HEIGHT) / CELL_SIZE,
-        oldX = static_cast<int>(figure.x - NUMBERS_CELL_WIDTH) / CELL_SIZE;
-        this->board[newY][newX] = std::move(this->board[oldY][oldX]);
+    if (!this->board[newY][newX]) {
+        const auto oldXY = getPosXYFloatToInt(figure.x, figure.y);
+        this->board[newY][newX] = std::move(this->board[oldXY.second][oldXY.first]);
+    } else {
+      std::cout << "DON'T DO IT MF!" << std::endl;
     }
 }
 
+// Init board with figures on
 void Board::initBoard() {
     for (int i = 0; i < this->board.size(); ++i) {
         for (int j = 0; j < this->board[i].size(); ++j) {
@@ -131,7 +144,7 @@ void Board::initBoard() {
     }
 }
 
-
+// Draw board cells and lines
 void Board::drawBoard() {
     int x = 0;
     int startPos = 0;
