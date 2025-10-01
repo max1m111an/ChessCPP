@@ -30,5 +30,5 @@ class Board {
         void drawBoard();
         std::string getBoardStatus() const;
         void drawFigure(const Figure&) const;
-        void moveFigureOnBoard(const Figure&, int, int);
+        int moveFigureOnBoard(const Figure&, int, int);
 };

@@ -10,7 +10,7 @@ std::unordered_map<FigureType, const char> typeToStr = {
 };
 
 /* Board record in format:
- * _lowercase_ - black;
+ * lowercase - black;
  * uppercase - white;
  * number - count empty cells in row;
  * '/' - shift to new row.
@@ -56,13 +56,13 @@ std::pair<int, int> getPosXYFloatToInt(const float x, const float y) {
 }
 
 // Move figure to new X and Y
-void Board::moveFigureOnBoard(const Figure &figure, const int newX, const int newY) {
+int Board::moveFigureOnBoard(const Figure &figure, const int newX, const int newY) {
     if (!this->board[newY][newX]) {
         const auto oldXY = getPosXYFloatToInt(figure.x, figure.y);
         this->board[newY][newX] = std::move(this->board[oldXY.second][oldXY.first]);
-    } else {
-      std::cout << "DON'T DO IT MF!" << std::endl;
+        return 0;
     }
+    return 1;
 }
 
 // Init board with figures on

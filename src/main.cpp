@@ -66,9 +66,11 @@ void endDragFigures(Board& board) {
             Figure* figurePtr = board.board[draggedFigureStartPos.second][draggedFigureStartPos.first].get();
 
             if (figurePtr) {
-                board.moveFigureOnBoard(*figurePtr, newCol, newRow);
-                figurePtr->moveFigure(newFigX, newFigY);
-                std::cout << board.getBoardStatus() << std::endl;
+                const int moveStatus = board.moveFigureOnBoard(*figurePtr, newCol, newRow);
+                if (moveStatus == 0){
+                    figurePtr->moveFigure(newFigX, newFigY);
+                    std::cout << board.getBoardStatus() << std::endl;
+                }
             }
         }
 
