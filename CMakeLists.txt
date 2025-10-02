@@ -31,7 +31,12 @@ else()
     message(STATUS "Using local ${LIB1}")
 endif()
 
-add_executable(ChessCPP main.cpp)
+add_executable(ChessCPP src/main.cpp
+        src/board.h
+        src/board.cpp
+        src/figures.h
+        src/figures.cpp
+        src/cell.h)
 
 # set the include directory
 target_include_directories(ChessCPP PRIVATE ${raylib_INCLUDE_DIRS})
