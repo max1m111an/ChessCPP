@@ -45,13 +45,8 @@ std::string Board::getBoardStatus() const {
     return status;
 }
 
-
-void Board::drawFigure(const Figure &figure) const {
-    const float scaleFigureToCell = static_cast<float>(CELL_SIZE / figure.texture.width);
-    DrawTextureEx(figure.texture, {figure.x, figure.y}, 0, scaleFigureToCell, WHITE);
-}
-
-std::pair<int, int> getPosXYFloatToInt(const float x, const float y) {
+// Convert coords to cell position
+inline std::pair<int, int> getPosXYFloatToInt(const float x, const float y) {
     return {(x - NUMBERS_CELL_WIDTH) / CELL_SIZE, (y - LETTERS_CELL_HEIGHT) / CELL_SIZE};
 }
 

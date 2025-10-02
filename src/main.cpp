@@ -4,29 +4,26 @@ typedef std::unordered_map<std::string, Texture2D> textureMap;
 #define filenameIcon "../textures/chesscpp_icon.png"
 
 
-bool isValidMove(const float x, const float y) {
+// Check if the move can be able on the whole board
+bool isValidMoveOnBoard(const float x, const float y) {
     return x >= NUMBERS_CELL_WIDTH && x <= SCREEN_WIDTH - NUMBERS_CELL_WIDTH &&
         y >= LETTERS_CELL_HEIGHT && y <= SCREEN_HEIGHT - LETTERS_CELL_HEIGHT;
 }
 
-Vector2 getPosXYIntToFloat(const int x, const int y) {
+// Convert figure position to screen coords
+inline Vector2 getPosXYIntToFloat(const int x, const int y) {
     return {static_cast<float>(x * CELL_SIZE + NUMBERS_CELL_WIDTH), static_cast<float>(y * CELL_SIZE + LETTERS_CELL_HEIGHT)};
 }
 
 void drawFigures(const Board &board) {
     for (int i = 0; i < CELLS_QUANT; ++i) {
         for (int j = 0; j < CELLS_QUANT; ++j) {
-            if (board.board[i][j].get()) {
-                const double scaleFigureToCell = static_cast<double>(CELL_SIZE) / board.board[i][j].get()->texture.width;
-                const Vector2 xy = getPosXYIntToFloat(j, i);
-
-                DrawTextureEx(board.board[i][j].get()->texture, {xy.x, xy.y},
-                    0, static_cast<float>(scaleFigureToCell), WHITE);
-            }
+            if (board.board[i][j]) board.board[i][j].get()->drawFigure();
         }
     }
 }
 
+// Convert mouse pos to cell position
 inline std::pair<int, int> getMousePosOnBoardXY(const Vector2 &mousePos) {
     return {static_cast<int>(mousePos.x - NUMBERS_CELL_WIDTH) / CELL_SIZE, static_cast<int>(mousePos.y - LETTERS_CELL_HEIGHT) / CELL_SIZE};
 }
@@ -35,6 +32,7 @@ static std::pair<int, int> draggedFigureStartPos {};
 static std::pair<int, int> draggedFigureCurrentPos {};
 static bool isDragging { false };
 
+// Captured figure
 void startDragFigures(const Board& board, const Vector2& mousePos) {
     const std::pair<int, int> xy = getMousePosOnBoardXY(mousePos);
 
@@ -44,6 +42,7 @@ void startDragFigures(const Board& board, const Vector2& mousePos) {
     }
 }
 
+// Dynamic drag figure on screen
 void updateDragFigures(const Board& board, const Vector2& mousePos) {
     if (isDragging) {
         draggedFigureCurrentPos = getMousePosOnBoardXY(mousePos);
@@ -55,6 +54,7 @@ void updateDragFigures(const Board& board, const Vector2& mousePos) {
     }
 }
 
+// Stand figure on end mouse pos
 void endDragFigures(Board& board) {
     if (isDragging) {
         const int newCol = draggedFigureCurrentPos.first;
@@ -62,7 +62,7 @@ void endDragFigures(Board& board) {
         const float newFigX = static_cast<float>(newCol) * CELL_SIZE + NUMBERS_CELL_WIDTH;
         const float newFigY = static_cast<float>(newRow) * CELL_SIZE + LETTERS_CELL_HEIGHT;
 
-        if (isValidMove(newFigX, newFigY) && draggedFigureCurrentPos != draggedFigureStartPos) {
+        if (isValidMoveOnBoard(newFigX, newFigY) && draggedFigureCurrentPos != draggedFigureStartPos) {
             Figure* figurePtr = board.board[draggedFigureStartPos.second][draggedFigureStartPos.first].get();
 
             if (figurePtr) {
@@ -78,14 +78,14 @@ void endDragFigures(Board& board) {
     }
 }
 
-// Returns figure to its place
+// Returns figure to its started place
 void turnBackFigure() {
     isDragging = false;
 }
 
 void DragFigures(const Vector2& mousePos, Board& board) {
     if (!isDragging) {
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && isValidMove(mousePos.x, mousePos.y)) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && isValidMoveOnBoard(mousePos.x, mousePos.y)) {
             startDragFigures(board, mousePos);
         }
     } else {

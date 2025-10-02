@@ -41,6 +41,7 @@ public:
 
     void moveFigure(float, float);
     void dragAtCursor(float, float) const;
+    void drawFigure() const;
     virtual FigureType getType();
 
     Figure(const Texture2D &texture, const float x, const float y, const Cell newCell, const bool isWhite):
