@@ -21,24 +21,22 @@ std::string Board::getBoardStatus() const {
 
     for (int i = 0; i < CELLS_QUANT; ++i) {
         for (int j = 0; j < CELLS_QUANT; ++j) {
-            if (!this->board[i][j]) {
+            if (!board[i][j]) {
                 emptyCells++;
             } else {
                 if (emptyCells > 0) {
                     status += std::to_string(emptyCells);
                     emptyCells = 0;
                 }
-                const auto figurePtr = this->board[i][j].get();
-                if (figurePtr) {
-                    FigureType type = figurePtr->getType();
-                    auto it = typeToStr.find(type);
-                    status += figurePtr->isWhite ? std::toupper(it->second) : it->second;
-                }
+                const auto figurePtr = board[i][j].get();
+                FigureType type = figurePtr->getType();
+                auto it = typeToStr.find(type);
+                status += figurePtr->isWhite ? static_cast<char>(std::toupper(it->second)) : it->second;
             }
-        }if (emptyCells > 0) {
+        } if (emptyCells > 0) {
             status += std::to_string(emptyCells);
             emptyCells = 0;
-        }if (i < CELLS_QUANT - 1) {
+        } if (i < CELLS_QUANT - 1) {
             status += '/';
         }
     }
@@ -62,47 +60,47 @@ int Board::moveFigureOnBoard(const Figure &figure, const int newX, const int new
 
 // Init board with figures on
 void Board::initBoard() {
-    for (int i = 0; i < this->board.size(); ++i) {
-        for (int j = 0; j < this->board[i].size(); ++j) {
+    for (int i = 0; i < board.size(); ++i) {
+        for (int j = 0; j < board[i].size(); ++j) {
             // Position
-            const float x = static_cast<float>(j * CELL_SIZE + NUMBERS_CELL_WIDTH),
+            const auto x = static_cast<float>(j * CELL_SIZE + NUMBERS_CELL_WIDTH),
             y = static_cast<float>(i * CELL_SIZE + LETTERS_CELL_HEIGHT);
 
             // Init white Pawns
             if (i == 6) {
-                this->board[i][j] = std::make_unique<Pawn>(Pawn(LoadTexture(filenameWP),
+                board[i][j] = std::make_unique<Pawn>(Pawn(LoadTexture(filenameWP),
                     x, y, Cell(j, i, (i + j) % 2 == 0), true));
             }
             // Init black Pawns
             if (i == 1) {
-                this->board[i][j] = std::make_unique<Pawn>(Pawn(LoadTexture(filenameBP),
+                board[i][j] = std::make_unique<Pawn>(Pawn(LoadTexture(filenameBP),
                     x, y, Cell(j, i, (i + j) % 2 == 0), false));
             }
             // Init blacks
             if (i == 0) {
                 // Rook
                 if (j == 0 || j == CELLS_QUANT - 1) {
-                    this->board[i][j] = std::make_unique<Rook>(Rook(LoadTexture(filenameBR),
+                    board[i][j] = std::make_unique<Rook>(Rook(LoadTexture(filenameBR),
                     x, y, Cell(j, i, (i + j) % 2 == 0), false));
                 }
                 // Bishop
                 if (j == 1 || j == CELLS_QUANT - 2) {
-                    this->board[i][j] = std::make_unique<Bishop>(Bishop(LoadTexture(filenameBB),
+                    board[i][j] = std::make_unique<Bishop>(Bishop(LoadTexture(filenameBB),
                     x, y, Cell(j, i, (i + j) % 2 == 0), false));
                 }
                 // Knight
                 if (j == 2 || j == CELLS_QUANT - 3) {
-                    this->board[i][j] = std::make_unique<Knight>(Knight(LoadTexture(filenameBN),
+                    board[i][j] = std::make_unique<Knight>(Knight(LoadTexture(filenameBN),
                     x, y, Cell(j, i, (i + j) % 2 == 0), false));
                 }
                 // King
                 if (j == 3) {
-                    this->board[i][j] = std::make_unique<King>(King(LoadTexture(filenameBK),
+                    board[i][j] = std::make_unique<King>(King(LoadTexture(filenameBK),
                     x, y, Cell(j, i, (i + j) % 2 == 0), false));
                 }
                 // Queen
                 if (j == 4) {
-                    this->board[i][j] = std::make_unique<Queen>(Queen(LoadTexture(filenameBQ),
+                    board[i][j] = std::make_unique<Queen>(Queen(LoadTexture(filenameBQ),
                     x, y, Cell(j, i, (i + j) % 2 == 0), false));
                 }
 
@@ -191,7 +189,7 @@ void Board::drawBoard() {
                     j * CELL_SIZE + LETTERS_CELL_HEIGHT,
                     CELL_SIZE,
                     CELL_SIZE,
-                    (i + j) % 2 == 0 ? WHITE : BLACK);
+                    (i + j) % 2 == 0 ? WHITE : Color{0x4e, 0x78, 0x37, 0xff});
         }
     }
 }
