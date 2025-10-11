@@ -15,6 +15,11 @@ inline Vector2 getPosXYIntToFloat(const int x, const int y) {
     return {static_cast<float>(x * CELL_SIZE + NUMBERS_CELL_WIDTH), static_cast<float>(y * CELL_SIZE + LETTERS_CELL_HEIGHT)};
 }
 
+// Convert mouse pos to cell position
+inline Vector2Int getMousePosOnBoardXY(const Vector2 &mousePos) {
+    return {static_cast<int>(mousePos.x - NUMBERS_CELL_WIDTH) / CELL_SIZE, static_cast<int>(mousePos.y - LETTERS_CELL_HEIGHT) / CELL_SIZE};
+}
+
 void drawFigures(const Board &board) {
     for (int i = 0; i < CELLS_QUANT; ++i) {
         for (int j = 0; j < CELLS_QUANT; ++j) {
@@ -23,18 +28,18 @@ void drawFigures(const Board &board) {
     }
 }
 
-// Convert mouse pos to cell position
-inline std::pair<int, int> getMousePosOnBoardXY(const Vector2 &mousePos) {
-    return {static_cast<int>(mousePos.x - NUMBERS_CELL_WIDTH) / CELL_SIZE, static_cast<int>(mousePos.y - LETTERS_CELL_HEIGHT) / CELL_SIZE};
-}
-
-static std::pair<int, int> draggedFigureStartPos {};
-static std::pair<int, int> draggedFigureCurrentPos {};
+Vector2Int draggedFigureStartPos {};
+Vector2Int draggedFigureCurrentPos {};
 static bool isDragging { false };
+
+// Returns figure to its started place
+void turnBackFigure() {
+    isDragging = false;
+}
 
 // Captured figure
 void startDragFigures(const Board& board, const Vector2& mousePos) {
-    const std::pair<int, int> xy = getMousePosOnBoardXY(mousePos);
+    const Vector2Int xy = getMousePosOnBoardXY(mousePos);
 
     if (board.board[xy.second][xy.first]) {
         draggedFigureStartPos = xy;
@@ -74,13 +79,8 @@ void endDragFigures(Board& board) {
             }
         }
 
-        isDragging = false;
+        turnBackFigure();
     }
-}
-
-// Returns figure to its started place
-void turnBackFigure() {
-    isDragging = false;
 }
 
 void DragFigures(const Vector2& mousePos, Board& board) {

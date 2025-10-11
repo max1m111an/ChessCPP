@@ -9,6 +9,7 @@
 
 #include "raylib.h"
 #include "figures.h"
+#include "Vector2Int.h"
 
 inline constexpr int CELL_SIZE = 80;
 inline constexpr int CELLS_QUANT = 8;

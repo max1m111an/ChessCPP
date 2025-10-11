@@ -45,15 +45,15 @@ std::string Board::getBoardStatus() const {
 }
 
 // Convert coords to cell position
-inline std::pair<int, int> getPosXYFloatToInt(const float x, const float y) {
-    return {(x - NUMBERS_CELL_WIDTH) / CELL_SIZE, (y - LETTERS_CELL_HEIGHT) / CELL_SIZE};
+inline Vector2Int getPosXYFloatToInt(const float x, const float y) {
+    return {static_cast<int>((x - NUMBERS_CELL_WIDTH) / CELL_SIZE), static_cast<int>((y - LETTERS_CELL_HEIGHT) / CELL_SIZE)};
 }
 
 // Move figure to new X and Y
 int Board::moveFigureOnBoard(const Figure &figure, const int newX, const int newY) {
-    if (!this->board[newY][newX]) {
-        const std::pair<int, int> oldXY = getPosXYFloatToInt(figure.x, figure.y);
-        this->board[newY][newX] = std::move(this->board[oldXY.second][oldXY.first]);
+    if (!board[newY][newX]) {
+        const Vector2Int oldXY = getPosXYFloatToInt(figure.x, figure.y);
+        board[newY][newX] = std::move(board[oldXY.second][oldXY.first]);
         return 0;
     }
     return 1;
@@ -110,27 +110,27 @@ void Board::initBoard() {
             if (i == 7) {
                 // Rook
                 if (j == 0 || j == CELLS_QUANT - 1) {
-                    this->board[i][j] = std::make_unique<Rook>(Rook(LoadTexture(filenameWR),
+                    board[i][j] = std::make_unique<Rook>(Rook(LoadTexture(filenameWR),
                     x, y, Cell(j, i, (i + j) % 2 == 0), true));
                 }
                 // Bishop
                 if (j == 1 || j == CELLS_QUANT - 2) {
-                    this->board[i][j] = std::make_unique<Bishop>(Bishop(LoadTexture(filenameWB),
+                    board[i][j] = std::make_unique<Bishop>(Bishop(LoadTexture(filenameWB),
                     x, y, Cell(j, i, (i + j) % 2 == 0), true));
                 }
                 // Knight
                 if (j == 2 || j == CELLS_QUANT - 3) {
-                    this->board[i][j] = std::make_unique<Knight>(Knight(LoadTexture(filenameWN),
+                    board[i][j] = std::make_unique<Knight>(Knight(LoadTexture(filenameWN),
                     x, y, Cell(j, i, (i + j) % 2 == 0), true));
                 }
                 // King
                 if (j == 3) {
-                    this->board[i][j] = std::make_unique<King>(King(LoadTexture(filenameWK),
+                    board[i][j] = std::make_unique<King>(King(LoadTexture(filenameWK),
                     x, y, Cell(j, i, (i + j) % 2 == 0), true));
                 }
                 // Queen
                 if (j == 4) {
-                    this->board[i][j] = std::make_unique<Queen>(Queen(LoadTexture(filenameWQ),
+                    board[i][j] = std::make_unique<Queen>(Queen(LoadTexture(filenameWQ),
                     x, y, Cell(j, i, (i + j) % 2 == 0), true));
                 }
             }
