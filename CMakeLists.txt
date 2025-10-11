@@ -37,7 +37,8 @@ add_executable(ChessCPP src/main.cpp
         src/figures.h
         src/figures.cpp
         src/cell.h
-        src/Vector2Int.h)
+        src/Vector2Int.h
+        )
 
 # set the include directory
 target_include_directories(ChessCPP PRIVATE ${raylib_INCLUDE_DIRS})

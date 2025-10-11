@@ -41,7 +41,7 @@ public:
     bool isWhite = false;
     float x = 0.0f;
     float y = 0.0f;
-    std::vector<Vector2Int> allowMoves;
+    std::vector<Cell> allowMoves;
 
     void moveFigure(float, float);
     void dragAtCursor(float, float) const;
@@ -55,7 +55,9 @@ public:
 class Pawn : public Figure {
     public:
     Pawn(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite){}
+    Figure(texture, x, y, cell, isWhite) {
+        //allowMoves.push_back(Cell(cell.getCol() - 1, cell.getRow() - 1), Cell());
+    }
 
     FigureType getType() override;
 };
