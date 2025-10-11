@@ -14,8 +14,11 @@
 #define filenameBN "../textures/bN.png"
 #define filenameBB "../textures/bB.png"
 
+#include <vector>
+
 #include "cell.h"
 #include "raylib.h"
+#include "Vector2Int.h"
 
 enum FigureType {
     PAWN,
@@ -38,6 +41,7 @@ public:
     bool isWhite = false;
     float x = 0.0f;
     float y = 0.0f;
+    std::vector<Vector2Int> allowMoves;
 
     void moveFigure(float, float);
     void dragAtCursor(float, float) const;

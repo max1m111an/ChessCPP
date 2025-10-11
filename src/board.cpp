@@ -45,13 +45,13 @@ std::string Board::getBoardStatus() const {
 }
 
 // Convert coords to cell position
-inline Vector2Int getPosXYFloatToInt(const float x, const float y) {
-    return {static_cast<int>((x - NUMBERS_CELL_WIDTH) / CELL_SIZE), static_cast<int>((y - LETTERS_CELL_HEIGHT) / CELL_SIZE)};
+Vector2Int getPosXYFloatToInt(const float x, const float y) {
+    return {(x - NUMBERS_CELL_WIDTH) / CELL_SIZE, (y - LETTERS_CELL_HEIGHT) / CELL_SIZE};
 }
 
 // Move figure to new X and Y
 int Board::moveFigureOnBoard(const Figure &figure, const int newX, const int newY) {
-    if (!board[newY][newX]) {
+    if (board[newY][newX].get() == nullptr || board[newY][newX]->isWhite != figure.isWhite) {
         const Vector2Int oldXY = getPosXYFloatToInt(figure.x, figure.y);
         board[newY][newX] = std::move(board[oldXY.second][oldXY.first]);
         return 0;

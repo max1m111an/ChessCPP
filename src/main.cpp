@@ -1,13 +1,13 @@
 #include "board.h"
 
-typedef std::unordered_map<std::string, Texture2D> textureMap;
 #define filenameIcon "../textures/chesscpp_icon.png"
 
 
 // Check if the move can be able on the whole board
 bool isValidMoveOnBoard(const float x, const float y) {
-    return x >= NUMBERS_CELL_WIDTH && x <= SCREEN_WIDTH - NUMBERS_CELL_WIDTH &&
-        y >= LETTERS_CELL_HEIGHT && y <= SCREEN_HEIGHT - LETTERS_CELL_HEIGHT;
+    const Vector2Int currentXY = getPosXYFloatToInt(x, y);
+    return currentXY.first >= 0 && currentXY.first < CELLS_QUANT &&
+        currentXY.second >= 0 && currentXY.second < CELLS_QUANT;
 }
 
 // Convert figure position to screen coords

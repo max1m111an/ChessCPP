@@ -32,3 +32,5 @@ class Board {
         std::string getBoardStatus() const;
         int moveFigureOnBoard(const Figure&, int, int);
 };
+
+Vector2Int getPosXYFloatToInt(float, float);
