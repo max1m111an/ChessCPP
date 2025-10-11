@@ -50,46 +50,46 @@ public:
 
 class Pawn : public Figure {
     public:
-    Pawn(const Texture2D& texture, const float x, const float y, const Cell cell, const bool white):
-    Figure(texture, x, y, cell, white){}
+    Pawn(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
+    Figure(texture, x, y, cell, isWhite){}
 
     FigureType getType() override;
 };
 
 class Knight : public Figure {
     public:
-    Knight(const Texture2D& texture, const float x, const float y, const Cell cell, const bool white):
-    Figure(texture, x, y, cell, white){}
+    Knight(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
+    Figure(texture, x, y, cell, isWhite){}
     FigureType getType() override;
 
 };
 
 class Bishop : public Figure {
     public:
-    Bishop(const Texture2D& texture, const float x, const float y, const Cell cell, const bool white):
-    Figure(texture, x, y, cell, white){}
+    Bishop(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
+    Figure(texture, x, y, cell, isWhite){}
     FigureType getType() override;
 
 };
 
 class Rook : public Figure {
     public:
-    Rook(const Texture2D& texture, const float x, const float y, const Cell cell, const bool white):
-    Figure(texture, x, y, cell, white){}
+    Rook(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
+    Figure(texture, x, y, cell, isWhite){}
     FigureType getType() override;
 };
 
 class King : public Figure {
     public:
-    King(const Texture2D& texture, const float x, const float y, const Cell cell, const bool white):
-    Figure(texture, x, y, cell, white){}
+    King(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
+    Figure(texture, x, y, cell, isWhite){}
     FigureType getType() override;
 };
 
 class Queen : public Figure {
     public:
-    Queen(const Texture2D& texture, const float x, const float y, const Cell cell, const bool white):
-    Figure(texture, x, y, cell, white){}
+    Queen(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
+    Figure(texture, x, y, cell, isWhite){}
     FigureType getType() override;
 };
 

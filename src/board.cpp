@@ -1,4 +1,5 @@
 #include "board.h"
+#define GREEN_CELL Color{0x4e, 0x78, 0x37, 0xff}
 
 std::unordered_map<FigureType, const char> typeToStr = {
 {PAWN, 'p'},
@@ -51,7 +52,7 @@ inline std::pair<int, int> getPosXYFloatToInt(const float x, const float y) {
 // Move figure to new X and Y
 int Board::moveFigureOnBoard(const Figure &figure, const int newX, const int newY) {
     if (!this->board[newY][newX]) {
-        const auto oldXY = getPosXYFloatToInt(figure.x, figure.y);
+        const std::pair<int, int> oldXY = getPosXYFloatToInt(figure.x, figure.y);
         this->board[newY][newX] = std::move(this->board[oldXY.second][oldXY.first]);
         return 0;
     }
@@ -189,7 +190,7 @@ void Board::drawBoard() {
                     j * CELL_SIZE + LETTERS_CELL_HEIGHT,
                     CELL_SIZE,
                     CELL_SIZE,
-                    (i + j) % 2 == 0 ? WHITE : Color{0x4e, 0x78, 0x37, 0xff});
+                    (i + j) % 2 == 0 ? WHITE : GREEN_CELL);
         }
     }
 }
