@@ -5,8 +5,6 @@
 void Figure::moveFigure(const float a, const float b) {
     x = a;
     y = b;
-    cell.setCol(static_cast<int>(a - NUMBERS_CELL_WIDTH) / CELL_SIZE);
-    cell.setRow(static_cast<int>(b - LETTERS_CELL_HEIGHT) / CELL_SIZE);
 }
 
 // Captured figure to mouse and drag it

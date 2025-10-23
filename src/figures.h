@@ -16,7 +16,6 @@
 
 #include <vector>
 
-#include "cell.h"
 #include "raylib.h"
 #include "Vector2Int.h"
 
@@ -36,26 +35,25 @@ public:
     Figure() = default;
 
     Texture2D texture;
-    Cell cell;
     bool alive;
     bool isWhite = false;
     float x = 0.0f;
     float y = 0.0f;
-    std::vector<Cell> allowMoves;
+    std::vector<Vector2Int> allowMoves;
 
     void moveFigure(float, float);
     void dragAtCursor(float, float) const;
     void drawFigure() const;
     virtual FigureType getType();
 
-    Figure(const Texture2D &texture, const float x, const float y, const Cell newCell, const bool isWhite):
-    texture(texture), cell(newCell), alive(true), isWhite(isWhite), x(x), y(y){}
+    Figure(const Texture2D &texture, const float x, const float y, const bool isWhite):
+    texture(texture), alive(true), isWhite(isWhite), x(x), y(y){}
 };
 
 class Pawn : public Figure {
     public:
-    Pawn(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite) {
+    Pawn(const Texture2D& texture, const float x, const float y, const bool isWhite):
+    Figure(texture, x, y, isWhite) {
         //allowMoves.push_back(Cell(cell.getCol() - 1, cell.getRow() - 1), Cell());
     }
 
@@ -64,38 +62,38 @@ class Pawn : public Figure {
 
 class Knight : public Figure {
     public:
-    Knight(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite){}
+    Knight(const Texture2D& texture, const float x, const float y, const bool isWhite):
+    Figure(texture, x, y, isWhite){}
     FigureType getType() override;
 
 };
 
 class Bishop : public Figure {
     public:
-    Bishop(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite){}
+    Bishop(const Texture2D& texture, const float x, const float y, const bool isWhite):
+    Figure(texture, x, y, isWhite){}
     FigureType getType() override;
 
 };
 
 class Rook : public Figure {
     public:
-    Rook(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite){}
+    Rook(const Texture2D& texture, const float x, const float y, const bool isWhite):
+    Figure(texture, x, y, isWhite){}
     FigureType getType() override;
 };
 
 class King : public Figure {
     public:
-    King(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite){}
+    King(const Texture2D& texture, const float x, const float y, const bool isWhite):
+    Figure(texture, x, y, isWhite){}
     FigureType getType() override;
 };
 
 class Queen : public Figure {
     public:
-    Queen(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite){}
+    Queen(const Texture2D& texture, const float x, const float y, const bool isWhite):
+    Figure(texture, x, y, isWhite){}
     FigureType getType() override;
 };
 
