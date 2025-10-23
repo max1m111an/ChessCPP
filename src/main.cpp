@@ -53,6 +53,7 @@ void updateDragFigures(const Board& board, const Vector2& mousePos) {
         const Figure* figurePtr = board.board[board.dragFigurePos.second][board.dragFigurePos.first].get();
         if (figurePtr) {
             figurePtr->dragAtCursor(mousePos.x, mousePos.y);
+            board.viewAllowMoves(board.dragFigurePos.first, board.dragFigurePos.second);
         }
     }
 }
@@ -62,16 +63,15 @@ void endDragFigures(Board& board) {
     if (board.isFigureDragging) {
         const int newCol = draggedFigureCurrentPos.first;
         const int newRow = draggedFigureCurrentPos.second;
-        const float newFigX = static_cast<float>(newCol) * CELL_SIZE + NUMBERS_CELL_WIDTH;
-        const float newFigY = static_cast<float>(newRow) * CELL_SIZE + LETTERS_CELL_HEIGHT;
+        const Vector2 newFigXY = getPosXYIntToFloat(newCol, newRow);
 
-        if (isValidMoveOnBoard(newFigX, newFigY) && draggedFigureCurrentPos != board.dragFigurePos) {
+        if (isValidMoveOnBoard(newFigXY.x, newFigXY.y) && draggedFigureCurrentPos != board.dragFigurePos) {
             Figure* figurePtr = board.board[board.dragFigurePos.second][board.dragFigurePos.first].get();
 
             if (figurePtr) {
                 const int moveStatus = board.moveFigureOnBoard(*figurePtr, newCol, newRow);
                 if (moveStatus == 0){
-                    figurePtr->moveFigure(newFigX, newFigY);
+                    figurePtr->moveFigure(newFigXY.x, newFigXY.y);
                     std::cout << board.getBoardStatus() << std::endl;
                 }
             }

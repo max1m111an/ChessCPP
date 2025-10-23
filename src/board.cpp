@@ -1,8 +1,10 @@
 #include "board.h"
+
+#include <algorithm>
 #define GREEN_CELL Color{0x4e, 0x78, 0x37, 0xff}
 #define YELLOW_CELL Color{0xba, 0xca, 0x44, 0xff}
 
-std::unordered_map<FigureType, const char> typeToStr = {
+std::unordered_map<FigureType, const char> typeToStr {
 {PAWN, 'p'},
 {ROOK, 'r'},
 {KNIGHT, 'k'},
@@ -50,9 +52,35 @@ Vector2Int getPosXYFloatToInt(const float x, const float y) {
     return {(x - NUMBERS_CELL_WIDTH) / CELL_SIZE, (y - LETTERS_CELL_HEIGHT) / CELL_SIZE};
 }
 
+// View allow figure moves as circles
+void Board::viewAllowMoves(const int figX, const int figY) const {
+    for (const auto& allowMove : board[figY][figX]->getAllowMoves()) {
+        const int x = allowMove.first, y = allowMove.second;
+        if (x < 0 || x >= CELLS_QUANT || y < 0 || y >= CELLS_QUANT) continue;
+
+        const int screenX = (x + 1) * CELL_SIZE + NUMBERS_CELL_WIDTH - CELL_SIZE / 2,
+        screenY = (y + 1) * CELL_SIZE + LETTERS_CELL_HEIGHT - CELL_SIZE / 2;
+        constexpr float radius = 12.0;
+
+        if (!board[y][x]) {
+            DrawCircle(screenX, screenY, radius, BLACK);
+        } else if (board[y][x]->isWhite != board[figY][figX]->isWhite){
+            DrawCircle(screenX, screenY, radius, RED);
+        }
+    }
+}
+
+template<typename T>
+bool contains(const std::vector<T>& vec, const T& value) {
+    return std::find_if(vec.begin(), vec.end(),
+            [&value](const T& elem) {
+                return elem.first == value.first && elem.second == value.second;
+            }) != vec.end();}
+
 // Move figure to new X and Y
 int Board::moveFigureOnBoard(const Figure &figure, const int newX, const int newY) {
-    if (board[newY][newX].get() == nullptr || board[newY][newX]->isWhite != figure.isWhite) {
+    if ((!board[newY][newX] || board[newY][newX]->isWhite != figure.isWhite)
+        && contains(figure.getAllowMoves(), Vector2Int(newX, newY))) {
         const Vector2Int oldXY = getPosXYFloatToInt(figure.x, figure.y);
         board[newY][newX] = std::move(board[oldXY.second][oldXY.first]);
         return 0;
