@@ -19,6 +19,13 @@
 #include "raylib.h"
 #include "Vector2Int.h"
 
+inline constexpr int CELL_SIZE = 80;
+inline constexpr int CELLS_QUANT = 8;
+inline constexpr int NUMBERS_CELL_WIDTH { 20 };
+inline constexpr int NUMBERS_CELL_HEIGHT { CELL_SIZE };
+inline constexpr int LETTERS_CELL_WIDTH { CELL_SIZE };
+inline constexpr int LETTERS_CELL_HEIGHT { 20 };
+
 enum FigureType {
     PAWN,
     KNIGHT,
@@ -39,25 +46,24 @@ public:
     bool isWhite = false;
     float x = 0.0f;
     float y = 0.0f;
-    std::vector<Vector2Int> allowMoves;
 
     void moveFigure(float, float);
     void dragAtCursor(float, float) const;
     void drawFigure() const;
     virtual FigureType getType();
+    virtual std::vector<Vector2Int> getAllowMoves() const;
 
     Figure(const Texture2D &texture, const float x, const float y, const bool isWhite):
-    texture(texture), alive(true), isWhite(isWhite), x(x), y(y){}
+    texture(texture), alive(true), isWhite(isWhite), x(x), y(y) {}
 };
 
 class Pawn : public Figure {
     public:
     Pawn(const Texture2D& texture, const float x, const float y, const bool isWhite):
-    Figure(texture, x, y, isWhite) {
-        //allowMoves.push_back(Cell(cell.getCol() - 1, cell.getRow() - 1), Cell());
-    }
+    Figure(texture, x, y, isWhite) {}
 
     FigureType getType() override;
+    std::vector<Vector2Int> getAllowMoves() const override;
 };
 
 class Knight : public Figure {
@@ -65,6 +71,7 @@ class Knight : public Figure {
     Knight(const Texture2D& texture, const float x, const float y, const bool isWhite):
     Figure(texture, x, y, isWhite){}
     FigureType getType() override;
+    std::vector<Vector2Int> getAllowMoves() const override;
 
 };
 
@@ -73,6 +80,7 @@ class Bishop : public Figure {
     Bishop(const Texture2D& texture, const float x, const float y, const bool isWhite):
     Figure(texture, x, y, isWhite){}
     FigureType getType() override;
+    std::vector<Vector2Int> getAllowMoves() const override;
 
 };
 
@@ -81,6 +89,8 @@ class Rook : public Figure {
     Rook(const Texture2D& texture, const float x, const float y, const bool isWhite):
     Figure(texture, x, y, isWhite){}
     FigureType getType() override;
+    std::vector<Vector2Int> getAllowMoves() const override;
+
 };
 
 class King : public Figure {
@@ -88,6 +98,8 @@ class King : public Figure {
     King(const Texture2D& texture, const float x, const float y, const bool isWhite):
     Figure(texture, x, y, isWhite){}
     FigureType getType() override;
+    std::vector<Vector2Int> getAllowMoves() const override;
+
 };
 
 class Queen : public Figure {
@@ -95,6 +107,8 @@ class Queen : public Figure {
     Queen(const Texture2D& texture, const float x, const float y, const bool isWhite):
     Figure(texture, x, y, isWhite){}
     FigureType getType() override;
+    std::vector<Vector2Int> getAllowMoves() const override;
+
 };
 
 #endif //FIGURES_H
