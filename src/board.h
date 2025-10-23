@@ -26,7 +26,8 @@ inline constexpr int FPS { 60 };
 class Board {
     public:
         std::array<std::array<std::unique_ptr<Figure>, CELLS_QUANT>, CELLS_QUANT> board;
-
+        bool isFigureDragging = false;
+        Vector2Int dragFigurePos;
         void initBoard();
         void drawBoard();
         std::string getBoardStatus() const;

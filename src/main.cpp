@@ -28,31 +28,29 @@ void drawFigures(const Board &board) {
     }
 }
 
-Vector2Int draggedFigureStartPos {};
 Vector2Int draggedFigureCurrentPos {};
-static bool isDragging { false };
 
 // Returns figure to its started place
-void turnBackFigure() {
-    isDragging = false;
+void turnBackFigure(Board& board) {
+    board.isFigureDragging = false;
 }
 
 // Captured figure
-void startDragFigures(const Board& board, const Vector2& mousePos) {
+void startDragFigures(Board& board, const Vector2& mousePos) {
     const Vector2Int xy = getMousePosOnBoardXY(mousePos);
 
     if (board.board[xy.second][xy.first]) {
-        draggedFigureStartPos = xy;
-        isDragging = true;
+        board.isFigureDragging = true;
+        board.dragFigurePos = xy;
     }
 }
 
 // Dynamic drag figure on screen
 void updateDragFigures(const Board& board, const Vector2& mousePos) {
-    if (isDragging) {
+    if (board.isFigureDragging) {
         draggedFigureCurrentPos = getMousePosOnBoardXY(mousePos);
 
-        const Figure* figurePtr = board.board[draggedFigureStartPos.second][draggedFigureStartPos.first].get();
+        const Figure* figurePtr = board.board[board.dragFigurePos.second][board.dragFigurePos.first].get();
         if (figurePtr) {
             figurePtr->dragAtCursor(mousePos.x, mousePos.y);
         }
@@ -61,14 +59,14 @@ void updateDragFigures(const Board& board, const Vector2& mousePos) {
 
 // Stand figure on end mouse pos
 void endDragFigures(Board& board) {
-    if (isDragging) {
+    if (board.isFigureDragging) {
         const int newCol = draggedFigureCurrentPos.first;
         const int newRow = draggedFigureCurrentPos.second;
         const float newFigX = static_cast<float>(newCol) * CELL_SIZE + NUMBERS_CELL_WIDTH;
         const float newFigY = static_cast<float>(newRow) * CELL_SIZE + LETTERS_CELL_HEIGHT;
 
-        if (isValidMoveOnBoard(newFigX, newFigY) && draggedFigureCurrentPos != draggedFigureStartPos) {
-            Figure* figurePtr = board.board[draggedFigureStartPos.second][draggedFigureStartPos.first].get();
+        if (isValidMoveOnBoard(newFigX, newFigY) && draggedFigureCurrentPos != board.dragFigurePos) {
+            Figure* figurePtr = board.board[board.dragFigurePos.second][board.dragFigurePos.first].get();
 
             if (figurePtr) {
                 const int moveStatus = board.moveFigureOnBoard(*figurePtr, newCol, newRow);
@@ -79,12 +77,12 @@ void endDragFigures(Board& board) {
             }
         }
 
-        turnBackFigure();
+        turnBackFigure(board);
     }
 }
 
 void DragFigures(const Vector2& mousePos, Board& board) {
-    if (!isDragging) {
+    if (!board.isFigureDragging) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && isValidMoveOnBoard(mousePos.x, mousePos.y)) {
             startDragFigures(board, mousePos);
         }
@@ -94,7 +92,7 @@ void DragFigures(const Vector2& mousePos, Board& board) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             endDragFigures(board);
         } if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-            turnBackFigure();
+            turnBackFigure(board);
         }
     }
 }
