@@ -1,18 +1,23 @@
 #include "board.h"
 
-typedef std::unordered_map<std::string, Texture2D> textureMap;
 #define filenameIcon "../textures/chesscpp_icon.png"
 
 
 // Check if the move can be able on the whole board
 bool isValidMoveOnBoard(const float x, const float y) {
-    return x >= NUMBERS_CELL_WIDTH && x <= SCREEN_WIDTH - NUMBERS_CELL_WIDTH &&
-        y >= LETTERS_CELL_HEIGHT && y <= SCREEN_HEIGHT - LETTERS_CELL_HEIGHT;
+    const Vector2Int currentXY = getPosXYFloatToInt(x, y);
+    return currentXY.first >= 0 && currentXY.first < CELLS_QUANT &&
+        currentXY.second >= 0 && currentXY.second < CELLS_QUANT;
 }
 
 // Convert figure position to screen coords
 inline Vector2 getPosXYIntToFloat(const int x, const int y) {
     return {static_cast<float>(x * CELL_SIZE + NUMBERS_CELL_WIDTH), static_cast<float>(y * CELL_SIZE + LETTERS_CELL_HEIGHT)};
+}
+
+// Convert mouse pos to cell position
+inline Vector2Int getMousePosOnBoardXY(const Vector2 &mousePos) {
+    return {static_cast<int>(mousePos.x - NUMBERS_CELL_WIDTH) / CELL_SIZE, static_cast<int>(mousePos.y - LETTERS_CELL_HEIGHT) / CELL_SIZE};
 }
 
 void drawFigures(const Board &board) {
@@ -23,68 +28,61 @@ void drawFigures(const Board &board) {
     }
 }
 
-// Convert mouse pos to cell position
-inline std::pair<int, int> getMousePosOnBoardXY(const Vector2 &mousePos) {
-    return {static_cast<int>(mousePos.x - NUMBERS_CELL_WIDTH) / CELL_SIZE, static_cast<int>(mousePos.y - LETTERS_CELL_HEIGHT) / CELL_SIZE};
+Vector2Int draggedFigureCurrentPos {};
+
+// Returns figure to its started place
+void turnBackFigure(Board& board) {
+    board.isFigureDragging = false;
 }
 
-static std::pair<int, int> draggedFigureStartPos {};
-static std::pair<int, int> draggedFigureCurrentPos {};
-static bool isDragging { false };
-
 // Captured figure
-void startDragFigures(const Board& board, const Vector2& mousePos) {
-    const std::pair<int, int> xy = getMousePosOnBoardXY(mousePos);
+void startDragFigures(Board& board, const Vector2& mousePos) {
+    const Vector2Int xy = getMousePosOnBoardXY(mousePos);
 
     if (board.board[xy.second][xy.first]) {
-        draggedFigureStartPos = xy;
-        isDragging = true;
+        board.isFigureDragging = true;
+        board.dragFigurePos = xy;
     }
 }
 
 // Dynamic drag figure on screen
 void updateDragFigures(const Board& board, const Vector2& mousePos) {
-    if (isDragging) {
+    if (board.isFigureDragging) {
         draggedFigureCurrentPos = getMousePosOnBoardXY(mousePos);
 
-        const Figure* figurePtr = board.board[draggedFigureStartPos.second][draggedFigureStartPos.first].get();
+        const Figure* figurePtr = board.board[board.dragFigurePos.second][board.dragFigurePos.first].get();
         if (figurePtr) {
             figurePtr->dragAtCursor(mousePos.x, mousePos.y);
+            board.viewAllowMoves(board.dragFigurePos.first, board.dragFigurePos.second);
         }
     }
 }
 
 // Stand figure on end mouse pos
 void endDragFigures(Board& board) {
-    if (isDragging) {
+    if (board.isFigureDragging) {
         const int newCol = draggedFigureCurrentPos.first;
         const int newRow = draggedFigureCurrentPos.second;
-        const float newFigX = static_cast<float>(newCol) * CELL_SIZE + NUMBERS_CELL_WIDTH;
-        const float newFigY = static_cast<float>(newRow) * CELL_SIZE + LETTERS_CELL_HEIGHT;
+        const Vector2 newFigXY = getPosXYIntToFloat(newCol, newRow);
 
-        if (isValidMoveOnBoard(newFigX, newFigY) && draggedFigureCurrentPos != draggedFigureStartPos) {
-            Figure* figurePtr = board.board[draggedFigureStartPos.second][draggedFigureStartPos.first].get();
+        if (isValidMoveOnBoard(newFigXY.x, newFigXY.y) && draggedFigureCurrentPos != board.dragFigurePos) {
+            Figure* figurePtr = board.board[board.dragFigurePos.second][board.dragFigurePos.first].get();
 
             if (figurePtr) {
                 const int moveStatus = board.moveFigureOnBoard(*figurePtr, newCol, newRow);
                 if (moveStatus == 0){
-                    figurePtr->moveFigure(newFigX, newFigY);
+                    figurePtr->moveFigure(newFigXY.x, newFigXY.y);
                     std::cout << board.getBoardStatus() << std::endl;
                 }
             }
         }
 
-        isDragging = false;
+        turnBackFigure(board);
     }
 }
 
-// Returns figure to its started place
-void turnBackFigure() {
-    isDragging = false;
-}
-
 void DragFigures(const Vector2& mousePos, Board& board) {
-    if (!isDragging) {
+    if (!board.isFigureDragging) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && isValidMoveOnBoard(mousePos.x, mousePos.y)) {
             startDragFigures(board, mousePos);
         }
@@ -94,7 +92,7 @@ void DragFigures(const Vector2& mousePos, Board& board) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             endDragFigures(board);
         } if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-            turnBackFigure();
+            turnBackFigure(board);
         }
     }
 }
