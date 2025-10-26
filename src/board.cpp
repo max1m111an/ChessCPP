@@ -54,20 +54,53 @@ Vector2Int getPosXYFloatToInt(const float x, const float y) {
 
 // View allow figure moves as circles
 void Board::viewAllowMoves(const int figX, const int figY) const {
-    for (const auto& allowMove : board[figY][figX]->getAllowMoves()) {
-        const int x = allowMove.first, y = allowMove.second;
+    const FigureType figureType = board[figY][figX]->getType();
+    const bool isWhite = board[figY][figX]->isWhite;
+
+    const auto normalMoves = board[figY][figX]->getAllowMoves();
+    for (const auto& move : normalMoves) {
+        const int x = move.first, y = move.second;
+
         if (x < 0 || x >= CELLS_QUANT || y < 0 || y >= CELLS_QUANT) continue;
 
-        const int screenX = (x + 1) * CELL_SIZE + NUMBERS_CELL_WIDTH - CELL_SIZE / 2,
-        screenY = (y + 1) * CELL_SIZE + LETTERS_CELL_HEIGHT - CELL_SIZE / 2;
+        const int screenX = (x + 1) * CELL_SIZE + NUMBERS_CELL_WIDTH - CELL_SIZE / 2;
+        const int screenY = (y + 1) * CELL_SIZE + LETTERS_CELL_HEIGHT - CELL_SIZE / 2;
         constexpr float radius = 12.0;
 
-        if (!board[y][x]) {
-            DrawCircle(screenX, screenY, radius, BLACK);
-        } else if (board[y][x]->isWhite != board[figY][figX]->isWhite){
-            DrawCircle(screenX, screenY, radius, RED);
+        if (figureType == PAWN) {
+            if (!board[y][x]) {
+                DrawCircle(screenX, screenY, radius, BLACK);
+            }
+        } else {
+            if (!board[y][x]) {
+                DrawCircle(screenX, screenY, radius, BLACK);
+            } else if (board[y][x]->isWhite != isWhite) {
+                DrawCircle(screenX, screenY, radius, RED);
+            }
         }
     }
+
+    if (figureType == PAWN) {
+        const auto eatMoves = board[figY][figX]->getEatMoves();
+        for (const auto& move : eatMoves) {
+            const int x = move.first, y = move.second;
+
+            if (x < 0 || x >= CELLS_QUANT || y < 0 || y >= CELLS_QUANT) continue;
+
+            if (board[y][x] && board[y][x]->isWhite != isWhite) {
+                const int screenX = (x + 1) * CELL_SIZE + NUMBERS_CELL_WIDTH - CELL_SIZE / 2;
+                const int screenY = (y + 1) * CELL_SIZE + LETTERS_CELL_HEIGHT - CELL_SIZE / 2;
+                constexpr float radius = 12.0;
+
+                DrawCircle(screenX, screenY, radius, RED);
+            }
+        }
+    }
+}
+
+template<typename T>
+void concatVecs(std::vector<T>& vec1, const std::vector<T>& vec2) {
+    vec1.insert(vec1.end(), vec2.begin(), vec2.end());
 }
 
 template<typename T>
@@ -79,11 +112,51 @@ bool contains(const std::vector<T>& vec, const T& value) {
 
 // Move figure to new X and Y
 int Board::moveFigureOnBoard(const Figure &figure, const int newX, const int newY) {
-    if ((!board[newY][newX] || board[newY][newX]->isWhite != figure.isWhite)
-        && contains(figure.getAllowMoves(), Vector2Int(newX, newY))) {
-        const Vector2Int oldXY = getPosXYFloatToInt(figure.x, figure.y);
-        board[newY][newX] = std::move(board[oldXY.second][oldXY.first]);
-        return 0;
+    if (!board[newY][newX] || board[newY][newX]->isWhite != figure.isWhite) {
+        auto checkArr { figure.getAllowMoves() };
+        if (figure.getType() == PAWN) {
+            const int isWhiteConverter = figure.isWhite ? -1 : 1;
+
+            const Vector2Int currentPos = getPosXYFloatToInt(figure.x, figure.y);
+            const int currentX = currentPos.first;
+            const int currentY = currentPos.second;
+
+            // Erase moves for pawns where the enemy stands in front
+            for (auto it = checkArr.begin(); it != checkArr.end(); ) {
+                if (it->first == currentX) {
+                    if (board[it->second][it->first]) {
+                        it = checkArr.erase(it);
+                        continue;
+                    }
+
+                    if (abs(it->second - currentY) == 2) {
+                        int intermediateY = currentY + isWhiteConverter;
+                        if (board[intermediateY][currentX]) {
+                            it = checkArr.erase(it);
+                            continue;
+                        }
+                    }
+                }
+                ++it;
+            }
+
+            // Add eat moves on diagonal
+            for (int j = -1; j <= 1; j += 2) {
+                const int targetX = currentX + j;
+                const int targetY = currentY + isWhiteConverter;
+                if (newX == targetX && newY == targetY) {
+                    if (board[targetY][targetX] && board[targetY][targetX]->isWhite != figure.isWhite) {
+                        checkArr.emplace_back(newX, newY);
+                    }
+                }
+            }
+        }
+
+        if (contains(checkArr, Vector2Int(newX, newY))) {
+            const Vector2Int oldXY = getPosXYFloatToInt(figure.x, figure.y);
+            board[newY][newX] = std::move(board[oldXY.second][oldXY.first]);
+            return 0;
+        }
     }
     return 1;
 }

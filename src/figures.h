@@ -50,8 +50,9 @@ public:
     void moveFigure(float, float);
     void dragAtCursor(float, float) const;
     void drawFigure() const;
-    virtual FigureType getType();
+    virtual FigureType getType() const;
     virtual std::vector<Vector2Int> getAllowMoves() const;
+    virtual std::vector<Vector2Int> getEatMoves() const;
 
     Figure(const Texture2D &texture, const float x, const float y, const bool isWhite):
     texture(texture), alive(true), isWhite(isWhite), x(x), y(y) {}
@@ -62,15 +63,16 @@ class Pawn : public Figure {
     Pawn(const Texture2D& texture, const float x, const float y, const bool isWhite):
     Figure(texture, x, y, isWhite) {}
 
-    FigureType getType() override;
+    FigureType getType() const override;
     std::vector<Vector2Int> getAllowMoves() const override;
+    std::vector<Vector2Int> getEatMoves() const override;
 };
 
 class Knight : public Figure {
     public:
     Knight(const Texture2D& texture, const float x, const float y, const bool isWhite):
     Figure(texture, x, y, isWhite){}
-    FigureType getType() override;
+    FigureType getType() const override;
     std::vector<Vector2Int> getAllowMoves() const override;
 
 };
@@ -79,7 +81,7 @@ class Bishop : public Figure {
     public:
     Bishop(const Texture2D& texture, const float x, const float y, const bool isWhite):
     Figure(texture, x, y, isWhite){}
-    FigureType getType() override;
+    FigureType getType() const override;
     std::vector<Vector2Int> getAllowMoves() const override;
 
 };
@@ -88,7 +90,7 @@ class Rook : public Figure {
     public:
     Rook(const Texture2D& texture, const float x, const float y, const bool isWhite):
     Figure(texture, x, y, isWhite){}
-    FigureType getType() override;
+    FigureType getType() const override;
     std::vector<Vector2Int> getAllowMoves() const override;
 
 };
@@ -97,7 +99,7 @@ class King : public Figure {
     public:
     King(const Texture2D& texture, const float x, const float y, const bool isWhite):
     Figure(texture, x, y, isWhite){}
-    FigureType getType() override;
+    FigureType getType() const override;
     std::vector<Vector2Int> getAllowMoves() const override;
 
 };
@@ -106,7 +108,7 @@ class Queen : public Figure {
     public:
     Queen(const Texture2D& texture, const float x, const float y, const bool isWhite):
     Figure(texture, x, y, isWhite){}
-    FigureType getType() override;
+    FigureType getType() const override;
     std::vector<Vector2Int> getAllowMoves() const override;
 
 };
