@@ -23,10 +23,11 @@ class Board {
         bool isFigureDragging = false;
         Vector2Int dragFigurePos;
         void initBoard();
-        void drawBoard();
-        void viewAllowMoves(const int, const int) const;
+        void drawBoard() const;
+        void viewAllowMoves(int, int) const;
         std::string getBoardStatus() const;
         int moveFigureOnBoard(const Figure&, int, int);
+        bool isPathBlocked(int, int, int, int) const;
 };
 
 Vector2Int getPosXYFloatToInt(float, float);
