@@ -13,12 +13,17 @@ std::unordered_map<FigureType, const char> typeToStr {
 {BISHOP, 'b'}
 };
 
-/* Board record in format:
- * lowercase - black;
- * uppercase - white;
- * number - count empty cells in row;
- * '/' - shift to new row.
-**/
+// Swap turn queue
+void Board::swapTurn() {
+    isWhiteTurn = !isWhiteTurn;
+}
+
+// Returns figure to its started place
+void Board::turnBackFigure() {
+    isFigureDragging = false;
+}
+
+// Forsyth–Edwards Notation
 std::string Board::getBoardStatus() const {
     std::string status;
     int emptyCells = 0;
@@ -34,7 +39,7 @@ std::string Board::getBoardStatus() const {
                 }
                 const auto figurePtr = board[i][j].get();
                 FigureType type = figurePtr->getType();
-                auto it = typeToStr.find(type);
+                const auto it = typeToStr.find(type);
                 status += figurePtr->isWhite ? static_cast<char>(std::toupper(it->second)) : it->second;
             }
         } if (emptyCells > 0) {
@@ -133,7 +138,6 @@ bool Board::isPathBlocked(const int fromX, const int fromY, const int toX, const
     int currentX = fromX + stepX;
     int currentY = fromY + stepY;
 
-    // Check all path
     while (currentX != toX || currentY != toY) {
         if (board[currentY][currentX] != nullptr) {
             return true;
@@ -198,8 +202,8 @@ int Board::moveFigureOnBoard(const Figure &figure, const int newX, const int new
 
 // Init board with figures on
 void Board::initBoard() {
-    for (int i = 0; i < board.size(); ++i) {
-        for (int j = 0; j < board[i].size(); ++j) {
+    for (int i = 0; i < CELLS_QUANT; ++i) {
+        for (int j = 0; j < CELLS_QUANT; ++j) {
             // Position
             const auto x = static_cast<float>(j * CELL_SIZE + NUMBERS_CELL_WIDTH),
             y = static_cast<float>(i * CELL_SIZE + LETTERS_CELL_HEIGHT);
@@ -231,17 +235,16 @@ void Board::initBoard() {
                     board[i][j] = std::make_unique<Knight>(Knight(LoadTexture(filenameBN),
                     x, y, false));
                 }
-                // King
-                if (j == 3) {
-                    board[i][j] = std::make_unique<King>(King(LoadTexture(filenameBK),
-                    x, y, false));
-                }
                 // Queen
-                if (j == 4) {
+                if (j == 3) {
                     board[i][j] = std::make_unique<Queen>(Queen(LoadTexture(filenameBQ),
                     x, y, false));
                 }
-
+                // King
+                if (j == 4) {
+                    board[i][j] = std::make_unique<King>(King(LoadTexture(filenameBK),
+                    x, y, false));
+                }
             }
             // Init whites
             if (i == 7) {
@@ -260,14 +263,14 @@ void Board::initBoard() {
                     board[i][j] = std::make_unique<Knight>(Knight(LoadTexture(filenameWN),
                     x, y, true));
                 }
-                // King
+                // Queen
                 if (j == 3) {
-                    board[i][j] = std::make_unique<King>(King(LoadTexture(filenameWK),
+                    board[i][j] = std::make_unique<Queen>(Queen(LoadTexture(filenameWQ),
                     x, y, true));
                 }
-                // Queen
+                // King
                 if (j == 4) {
-                    board[i][j] = std::make_unique<Queen>(Queen(LoadTexture(filenameWQ),
+                    board[i][j] = std::make_unique<King>(King(LoadTexture(filenameWK),
                     x, y, true));
                 }
             }

@@ -23,25 +23,18 @@ inline Vector2Int getMousePosOnBoardXY(const Vector2 &mousePos) {
 void drawFigures(const Board &board) {
     for (int i = 0; i < CELLS_QUANT; ++i) {
         for (int j = 0; j < CELLS_QUANT; ++j) {
-            if (board.board[i][j]) board.board[i][j].get()->drawFigure();
+            if (board.board[i][j]) board.board[i][j]->drawFigure();
         }
     }
 }
 
-Vector2Int draggedFigureCurrentPos {};
-bool isWhiteTurn = true;
-
-// Returns figure to its started place
-bool turnBackFigure(Board& board) {
-    board.isFigureDragging = false;
-    return true;
-}
+Vector2Int dragFigureCurrentPos {};
 
 // Captured figure
 void startDragFigures(Board& board, const Vector2& mousePos) {
     const Vector2Int xy = getMousePosOnBoardXY(mousePos);
 
-    if (board.board[xy.second][xy.first] && board.board[xy.second][xy.first]->isWhite == isWhiteTurn) {
+    if (board.board[xy.second][xy.first] && board.board[xy.second][xy.first]->isWhite == board.isWhiteTurn) {
         board.isFigureDragging = true;
         board.dragFigurePos = xy;
     }
@@ -50,12 +43,12 @@ void startDragFigures(Board& board, const Vector2& mousePos) {
 // Dynamic drag figure on screen
 void updateDragFigures(const Board& board, const Vector2& mousePos) {
     if (board.isFigureDragging) {
-        draggedFigureCurrentPos = getMousePosOnBoardXY(mousePos);
+        dragFigureCurrentPos = getMousePosOnBoardXY(mousePos);
 
         const Figure* figurePtr = board.board[board.dragFigurePos.second][board.dragFigurePos.first].get();
         if (figurePtr) {
-            figurePtr->dragAtCursor(mousePos.x, mousePos.y);
             board.viewAllowMoves(board.dragFigurePos.first, board.dragFigurePos.second);
+            figurePtr->dragAtCursor(mousePos.x, mousePos.y);
         }
     }
 }
@@ -63,23 +56,23 @@ void updateDragFigures(const Board& board, const Vector2& mousePos) {
 // Stand figure on end mouse pos
 void endDragFigures(Board& board) {
     if (board.isFigureDragging) {
-        const int newCol = draggedFigureCurrentPos.first;
-        const int newRow = draggedFigureCurrentPos.second;
+        const int newCol = dragFigureCurrentPos.first;
+        const int newRow = dragFigureCurrentPos.second;
         const Vector2 newFigXY = getPosXYIntToFloat(newCol, newRow);
 
-        if (isValidMoveOnBoard(newFigXY.x, newFigXY.y) && draggedFigureCurrentPos != board.dragFigurePos) {
+        if (isValidMoveOnBoard(newFigXY.x, newFigXY.y) && dragFigureCurrentPos != board.dragFigurePos) {
             Figure* figurePtr = board.board[board.dragFigurePos.second][board.dragFigurePos.first].get();
 
             if (figurePtr) {
                 const int moveStatus = board.moveFigureOnBoard(*figurePtr, newCol, newRow);
                 if (moveStatus == 0){
                     figurePtr->moveFigure(newFigXY.x, newFigXY.y);
-                    isWhiteTurn = !isWhiteTurn;
+                    board.swapTurn();
                     std::cout << board.getBoardStatus() << std::endl;
                 }
             }
         }
-        turnBackFigure(board);
+        board.turnBackFigure();
     }
 }
 
@@ -94,7 +87,7 @@ void DragFigures(const Vector2& mousePos, Board& board) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             endDragFigures(board);
         } if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-            turnBackFigure(board);
+            board.turnBackFigure();
         }
     }
 }
@@ -120,9 +113,9 @@ int main() {
         mainBoard.drawBoard();
         drawFigures(mainBoard);
 
-        DrawText(isWhiteTurn ? "Whites turn" : "Blacks turn",
-            (CELL_SIZE * CELLS_QUANT) / 2 - 50,
-            CELL_SIZE * CELLS_QUANT + LETTERS_CELL_HEIGHT * 2 + 50,
+        DrawText(mainBoard.isWhiteTurn ? "Whites turn" : "Blacks turn",
+            CELL_SIZE * CELLS_QUANT / 2 - CELL_SIZE + NUMBERS_CELL_WIDTH,
+            (CELL_SIZE + 1) * CELLS_QUANT + LETTERS_CELL_HEIGHT * 2,
             24, BLACK);
 
         DragFigures(mousePosition, mainBoard);

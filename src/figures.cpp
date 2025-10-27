@@ -80,8 +80,8 @@ std::vector<Vector2Int> Pawn::getAllowMoves() const {
     std::vector<Vector2Int> allowMoves;
     allowMoves.reserve(1);
 
-    int countForXMoveOne = 1;
-    int countForXMoveTwo = 0;
+    int countForXMoveOne = 1;  // One step forward
+    int countForXMoveTwo = 0;  // Two steps forward
     if (isWhite) {
         countForXMoveOne -= 2;
         if (currentPos.second == 6) {

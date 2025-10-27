@@ -20,8 +20,11 @@ inline constexpr int FPS { 60 };
 class Board {
     public:
         std::array<std::array<std::unique_ptr<Figure>, CELLS_QUANT>, CELLS_QUANT> board;
-        bool isFigureDragging = false;
+        bool isFigureDragging { false };
+        bool isWhiteTurn { true };
         Vector2Int dragFigurePos;
+        void swapTurn();
+        void turnBackFigure();
         void initBoard();
         void drawBoard() const;
         void viewAllowMoves(int, int) const;
