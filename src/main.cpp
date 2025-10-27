@@ -29,17 +29,19 @@ void drawFigures(const Board &board) {
 }
 
 Vector2Int draggedFigureCurrentPos {};
+bool isWhiteTurn = true;
 
 // Returns figure to its started place
-void turnBackFigure(Board& board) {
+bool turnBackFigure(Board& board) {
     board.isFigureDragging = false;
+    return true;
 }
 
 // Captured figure
 void startDragFigures(Board& board, const Vector2& mousePos) {
     const Vector2Int xy = getMousePosOnBoardXY(mousePos);
 
-    if (board.board[xy.second][xy.first]) {
+    if (board.board[xy.second][xy.first] && board.board[xy.second][xy.first]->isWhite == isWhiteTurn) {
         board.isFigureDragging = true;
         board.dragFigurePos = xy;
     }
@@ -72,11 +74,11 @@ void endDragFigures(Board& board) {
                 const int moveStatus = board.moveFigureOnBoard(*figurePtr, newCol, newRow);
                 if (moveStatus == 0){
                     figurePtr->moveFigure(newFigXY.x, newFigXY.y);
+                    isWhiteTurn = !isWhiteTurn;
                     std::cout << board.getBoardStatus() << std::endl;
                 }
             }
         }
-
         turnBackFigure(board);
     }
 }
@@ -117,6 +119,11 @@ int main() {
         BeginDrawing();
         mainBoard.drawBoard();
         drawFigures(mainBoard);
+
+        DrawText(isWhiteTurn ? "Whites turn" : "Blacks turn",
+            (CELL_SIZE * CELLS_QUANT) / 2 - 50,
+            CELL_SIZE * CELLS_QUANT + LETTERS_CELL_HEIGHT * 2 + 50,
+            24, BLACK);
 
         DragFigures(mousePosition, mainBoard);
 
