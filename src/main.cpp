@@ -10,6 +10,7 @@ bool isValidMoveOnBoard(const float x, const float y) {
         currentXY.second >= 0 && currentXY.second < CELLS_QUANT;
 }
 
+
 // Convert figure position to screen coords
 inline Vector2 getPosXYIntToFloat(const int x, const int y) {
     return {static_cast<float>(x * CELL_SIZE + NUMBERS_CELL_WIDTH), static_cast<float>(y * CELL_SIZE + LETTERS_CELL_HEIGHT)};

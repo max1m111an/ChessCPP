@@ -78,7 +78,7 @@ std::vector<Vector2Int> Pawn::getEatMoves() const {
 std::vector<Vector2Int> Pawn::getAllowMoves() const {
     const Vector2Int currentPos = getPosXYFloatToInt(x, y);
     std::vector<Vector2Int> allowMoves;
-    allowMoves.reserve(1);
+    allowMoves.reserve(4);
 
     int countForXMoveOne = 1;  // One step forward
     int countForXMoveTwo = 0;  // Two steps forward

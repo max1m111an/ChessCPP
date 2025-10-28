@@ -15,6 +15,7 @@ inline constexpr int SCREEN_WIDTH { CELL_SIZE * CELLS_QUANT + 2 * NUMBERS_CELL_W
 inline constexpr int SCREEN_HEIGHT { CELL_SIZE * CELLS_QUANT + 2 * LETTERS_CELL_HEIGHT};
 inline constexpr int ADD_SCREEN_HEIGHT { 150 };
 inline constexpr int FPS { 60 };
+inline constexpr float RADIUS { 12.0 };
 
 
 class Board {

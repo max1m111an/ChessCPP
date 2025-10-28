@@ -26,7 +26,7 @@ void Board::turnBackFigure() {
 // Forsyth–Edwards Notation
 std::string Board::getBoardStatus() const {
     std::string status;
-    int emptyCells = 0;
+    int emptyCells { 0 };
 
     for (int i = 0; i < CELLS_QUANT; ++i) {
         for (int j = 0; j < CELLS_QUANT; ++j) {
@@ -57,6 +57,10 @@ Vector2Int getPosXYFloatToInt(const float x, const float y) {
     return {(x - NUMBERS_CELL_WIDTH) / CELL_SIZE, (y - LETTERS_CELL_HEIGHT) / CELL_SIZE};
 }
 
+bool isValidPos(const int x, const int y) {
+    return x >= 0 && x < CELLS_QUANT && y >= 0 && y < CELLS_QUANT;
+}
+
 // View allow figure moves as circles
 void Board::viewAllowMoves(const int figX, const int figY) const {
     const FigureType figureType = board[figY][figX]->getType();
@@ -82,18 +86,17 @@ void Board::viewAllowMoves(const int figX, const int figY) const {
 
         const int screenX = (x + 1) * CELL_SIZE + NUMBERS_CELL_WIDTH - CELL_SIZE / 2;
         const int screenY = (y + 1) * CELL_SIZE + LETTERS_CELL_HEIGHT - CELL_SIZE / 2;
-        constexpr float radius = 12.0;
 
         // For pawn only front cells
         if (figureType == PAWN) {
             if (x == figX && !board[y][x]) {
-                DrawCircle(screenX, screenY, radius, BLACK);
+                DrawCircle(screenX, screenY, RADIUS, BLACK);
             }
         } else {
             if (!board[y][x]) {
-                DrawCircle(screenX, screenY, radius, BLACK);
+                DrawCircle(screenX, screenY, RADIUS, BLACK);
             } else if (board[y][x]->isWhite != isWhite) {
-                DrawCircle(screenX, screenY, radius, RED);
+                DrawCircle(screenX, screenY, RADIUS, RED);
             }
         }
     }
@@ -106,11 +109,12 @@ void Board::viewAllowMoves(const int figX, const int figY) const {
             const int targetX = figX + dx;
             const int targetY = figY + direction;
 
+            if (!isValidPos(targetX, targetY)) continue;
+
             if (board[targetY][targetX] && board[targetY][targetX]->isWhite != isWhite) {
                 const int screenX = (targetX + 1) * CELL_SIZE + NUMBERS_CELL_WIDTH - CELL_SIZE / 2;
                 const int screenY = (targetY + 1) * CELL_SIZE + LETTERS_CELL_HEIGHT - CELL_SIZE / 2;
-                constexpr float radius = 12;
-                DrawCircle(screenX, screenY, radius, RED);
+                DrawCircle(screenX, screenY, RADIUS, RED);
             }
         }
     }
@@ -124,21 +128,22 @@ bool contains(const std::vector<T>& vec, const T& value) {
                 return elem.first == value.first && elem.second == value.second;
             }) != vec.end();}
 
-
 // Check for blocked moves by another figure
 bool Board::isPathBlocked(const int fromX, const int fromY, const int toX, const int toY) const {
     const int dx = toX - fromX;
     const int dy = toY - fromY;
 
     // Move direction
-    const int stepX = (dx == 0) ? 0 : (dx > 0 ? 1 : -1);
-    const int stepY = (dy == 0) ? 0 : (dy > 0 ? 1 : -1);
+    const int stepX = dx == 0 ? 0 : (dx > 0 ? 1 : -1);
+    const int stepY = dy == 0 ? 0 : (dy > 0 ? 1 : -1);
 
     // For linear figures check the whole path
     int currentX = fromX + stepX;
     int currentY = fromY + stepY;
 
     while (currentX != toX || currentY != toY) {
+        if (!isValidPos(currentX, currentY)) return true;
+
         if (board[currentY][currentX] != nullptr) {
             return true;
         }
@@ -183,6 +188,8 @@ int Board::moveFigureOnBoard(const Figure &figure, const int newX, const int new
             for (int j = -1; j <= 1; j += 2) {
                 const int targetX = currentX + j;
                 const int targetY = currentY + isWhiteConverter;
+
+                if (!isValidPos(targetX, targetY)) continue;
 
                 if (board[targetY][targetX] && board[targetY][targetX]->isWhite != figure.isWhite) {
                     checkArr.emplace_back(targetX, targetY);
@@ -280,8 +287,7 @@ void Board::initBoard() {
 
 // Draw board cells and lines
 void Board::drawBoard() const {
-    int x = 0;
-    int startPos = 0;
+    int x = 0, startPos = 0;
     bool first = true;
 
     // Vertical numbers
@@ -294,15 +300,14 @@ void Board::drawBoard() const {
         DrawTextCodepoint(GetFontDefault(), '8' - x, textPos, 16, BLACK);
         ++x;
 
-        if (x == 8 && first) {
+        if (x == CELLS_QUANT && first) {
             startPos = CELL_SIZE * CELLS_QUANT + NUMBERS_CELL_WIDTH;
             first = false;
             x = 0;
         }
     }
 
-    x = 0;
-    startPos = 0;
+    x = 0, startPos = 0;
     first = true;
 
     // Horizontal letters
@@ -315,8 +320,8 @@ void Board::drawBoard() const {
         DrawTextCodepoint(GetFontDefault(), 'a' + x, textPos, 16, BLACK);
         ++x;
 
-        if (x == 8 && first) {
-            startPos =  + LETTERS_CELL_HEIGHT;
+        if (x == CELLS_QUANT && first) {
+            startPos = CELL_SIZE * CELLS_QUANT + LETTERS_CELL_HEIGHT;
             first = false;
             x = 0;
         }
@@ -325,12 +330,12 @@ void Board::drawBoard() const {
     // Board itself
     for (int i = 0; i < CELLS_QUANT; i++) {
         for (int j = 0; j < CELLS_QUANT; j++) {
-            auto cellColor{ WHITE };
+            auto cellColor { WHITE };
 
             if (isFigureDragging &&
                 dragFigurePos.first == i &&
                 dragFigurePos.second == j) {
-                cellColor = YELLOW_CELL;
+                cellColor = YELLOW_CELL; // if figure is dragging now
             } else if ((i + j) % 2 == 1) {
                 cellColor = GREEN_CELL;
             }

@@ -19,8 +19,8 @@
 #include "raylib.h"
 #include "Vector2Int.h"
 
-inline constexpr int CELL_SIZE = 80;
-inline constexpr int CELLS_QUANT = 8;
+inline constexpr int CELL_SIZE { 80 };
+inline constexpr int CELLS_QUANT { 8 };
 inline constexpr int NUMBERS_CELL_WIDTH { 20 };
 inline constexpr int NUMBERS_CELL_HEIGHT { CELL_SIZE };
 inline constexpr int LETTERS_CELL_WIDTH { CELL_SIZE };
@@ -43,9 +43,9 @@ public:
 
     Texture2D texture;
     bool alive;
-    bool isWhite = false;
-    float x = 0.0f;
-    float y = 0.0f;
+    bool isWhite { false };
+    float x { 0.0f };
+    float y { 0.0f };
 
     void moveFigure(float, float);
     void dragAtCursor(float, float) const;
