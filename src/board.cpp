@@ -294,7 +294,7 @@ void Board::drawBoard() const {
         DrawTextCodepoint(GetFontDefault(), '8' - x, textPos, 16, BLACK);
         ++x;
 
-        if (x == 8 && first) {
+        if (x == CELLS_QUANT && first) {
             startPos = CELL_SIZE * CELLS_QUANT + NUMBERS_CELL_WIDTH;
             first = false;
             x = 0;
@@ -315,8 +315,8 @@ void Board::drawBoard() const {
         DrawTextCodepoint(GetFontDefault(), 'a' + x, textPos, 16, BLACK);
         ++x;
 
-        if (x == 8 && first) {
-            startPos =  + LETTERS_CELL_HEIGHT;
+        if (x == CELLS_QUANT && first) {
+            startPos = CELL_SIZE * CELLS_QUANT + LETTERS_CELL_HEIGHT;
             first = false;
             x = 0;
         }
