@@ -14,8 +14,17 @@
 #define filenameBN "../textures/bN.png"
 #define filenameBB "../textures/bB.png"
 
-#include "cell.h"
+#include <vector>
+
 #include "raylib.h"
+#include "Vector2Int.h"
+
+inline constexpr int CELL_SIZE = 80;
+inline constexpr int CELLS_QUANT = 8;
+inline constexpr int NUMBERS_CELL_WIDTH { 20 };
+inline constexpr int NUMBERS_CELL_HEIGHT { CELL_SIZE };
+inline constexpr int LETTERS_CELL_WIDTH { CELL_SIZE };
+inline constexpr int LETTERS_CELL_HEIGHT { 20 };
 
 enum FigureType {
     PAWN,
@@ -33,7 +42,6 @@ public:
     Figure() = default;
 
     Texture2D texture;
-    Cell cell;
     bool alive;
     bool isWhite = false;
     float x = 0.0f;
@@ -42,55 +50,67 @@ public:
     void moveFigure(float, float);
     void dragAtCursor(float, float) const;
     void drawFigure() const;
-    virtual FigureType getType();
+    virtual FigureType getType() const;
+    virtual std::vector<Vector2Int> getAllowMoves() const;
+    virtual std::vector<Vector2Int> getEatMoves() const;
 
-    Figure(const Texture2D &texture, const float x, const float y, const Cell newCell, const bool isWhite):
-    texture(texture), cell(newCell), alive(true), isWhite(isWhite), x(x), y(y){}
+    Figure(const Texture2D &texture, const float x, const float y, const bool isWhite):
+    texture(texture), alive(true), isWhite(isWhite), x(x), y(y) {}
 };
 
 class Pawn : public Figure {
     public:
-    Pawn(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite){}
+    Pawn(const Texture2D& texture, const float x, const float y, const bool isWhite):
+    Figure(texture, x, y, isWhite) {}
 
-    FigureType getType() override;
+    FigureType getType() const override;
+    std::vector<Vector2Int> getAllowMoves() const override;
+    std::vector<Vector2Int> getEatMoves() const override;
 };
 
 class Knight : public Figure {
     public:
-    Knight(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite){}
-    FigureType getType() override;
+    Knight(const Texture2D& texture, const float x, const float y, const bool isWhite):
+    Figure(texture, x, y, isWhite){}
+    FigureType getType() const override;
+    std::vector<Vector2Int> getAllowMoves() const override;
 
 };
 
 class Bishop : public Figure {
     public:
-    Bishop(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite){}
-    FigureType getType() override;
+    Bishop(const Texture2D& texture, const float x, const float y, const bool isWhite):
+    Figure(texture, x, y, isWhite){}
+    FigureType getType() const override;
+    std::vector<Vector2Int> getAllowMoves() const override;
 
 };
 
 class Rook : public Figure {
     public:
-    Rook(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite){}
-    FigureType getType() override;
+    Rook(const Texture2D& texture, const float x, const float y, const bool isWhite):
+    Figure(texture, x, y, isWhite){}
+    FigureType getType() const override;
+    std::vector<Vector2Int> getAllowMoves() const override;
+
 };
 
 class King : public Figure {
     public:
-    King(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite){}
-    FigureType getType() override;
+    King(const Texture2D& texture, const float x, const float y, const bool isWhite):
+    Figure(texture, x, y, isWhite){}
+    FigureType getType() const override;
+    std::vector<Vector2Int> getAllowMoves() const override;
+
 };
 
 class Queen : public Figure {
     public:
-    Queen(const Texture2D& texture, const float x, const float y, const Cell cell, const bool isWhite):
-    Figure(texture, x, y, cell, isWhite){}
-    FigureType getType() override;
+    Queen(const Texture2D& texture, const float x, const float y, const bool isWhite):
+    Figure(texture, x, y, isWhite){}
+    FigureType getType() const override;
+    std::vector<Vector2Int> getAllowMoves() const override;
+
 };
 
 #endif //FIGURES_H
